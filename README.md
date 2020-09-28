@@ -8,4 +8,4 @@ It uses the module pyfesom2 and is set to Python 3.
 - Major change is the replacement of Basemap by cartopy as the former is deprecated in Python 3.
 - Further, FESOM2 mesh structure changed and so did some part of the evaluation scripts...
 
-
+**You can use the provided .yml file to set up your conda environmental with the necessary packages**
