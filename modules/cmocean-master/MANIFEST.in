@@ -1,0 +1,4 @@
+include README.md
+include *.txt
+recursive-include cmocean *.txt
+recursive-include cmocean *.py
