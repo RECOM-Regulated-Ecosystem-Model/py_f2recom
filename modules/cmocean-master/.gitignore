@@ -1,0 +1,13 @@
+cmocean/rgb/drafts/
+dist
+*.pyc
+.DS_STORE
+*.egg-info
+*old*
+*.npy
+figures/eval*
+figures/gallery*
+.pytest_cache/*
+docs/build/*
+build
+figures/lightness*
