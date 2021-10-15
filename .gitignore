@@ -1,4 +1,7 @@
-*.py
+GlobalAssessment/*.py
 *.pyc
 *.pdf
 *.html
+GlobalAssessment/MESH_cache/
+*checkpoint.ipynb
+GlobalAssessment/.ipynb_checkpoints/*
