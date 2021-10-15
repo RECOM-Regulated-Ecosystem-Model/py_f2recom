@@ -1,6 +1,6 @@
 # py_f2recom
 
-**py_f2recom** is the toolbox for evaluation of **FESOM2-REcoM2** outputs.
+**py_f2recom** is the toolbox for the evaluation of **FESOM2-REcoM2** outputs.
 
 **RECOM2**'s documentation:  
 https://recom.readthedocs.io/en/latest/intro.html  
@@ -18,7 +18,7 @@ WARNING: If you are working on the previous FESOM1.4, this toolbox IS NOT for yo
 You can refer to the ancestor called **py_recom** working with the soon obsolete python2:  
 https://gitlab.dkrz.de/py_recom/py_recom
 
-**py_recom2** works like **py_fesom2**, but adds some custom dependencies which are included (i.e. improved version of pyfesom2, skillmetrics, cmocean). All you need is to copy the directory, adapt your own path, and a python3 distribution (e.g.anaconda3) that already contains the required mainstream librairies (e.g. numpy, xarray, matplotlib >= 3.3, pandas, cartopy, netcdf) and NOT an conda environment. For example, on the machine Ollie just type 'module load python', on HLRN machine  'module load anaconda3' (although you might need on HLRN to install/update locally some missing modules using 'pip install module_name --user').
+**py_recom2** works like **py_fesom2**, but adds some custom dependencies which are included (i.e. improved version of pyfesom2, skillmetrics, cmocean). All you need is to copy the directory ('git clone https://gitlab.dkrz.de/a270114/py_f2recom.git'), adapt your own paths, and a python3 distribution (e.g. anaconda3) that already contains the required mainstream librairies (e.g. numpy, xarray, matplotlib >= 3.3, pandas, cartopy, netcdf) and NOT an conda environment. For example, on the machine Ollie just type 'module load python', on HLRN machine  'module load anaconda3' (although you might need on HLRN to install/update locally some missing modules using 'pip install module_name --user').
  
 **Note1**: Using Robinson projection needs more time than the standard Plate Carree projection (default).  
 **Note2**: in order to avoid memory issue and restart kernels, most functions do not output variables.  
