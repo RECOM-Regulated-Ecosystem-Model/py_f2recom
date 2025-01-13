@@ -56,4 +56,6 @@ py_recom allows in some analysis the masking/comparison of oceans, for example:
 
 The user can refer to the 'get_mask' funstion in '/modules/pyseom2/ut.py'
 
-(c) REcoM development team (MarESys Judith Hauck's group). No warranty. contact: laurent.oziel@awi.de
+(c) REcoM development team (MarESys Judith Hauck's group). No warranty. 
+Main developper : Laurent Oziel.
+Contact: laurent.oziel@awi.de
