@@ -30,6 +30,8 @@ dependencies = [
     "netCDF4",
     "scipy",
     "pathlib",
+    # Note: pyfesom2 and SkillMetrics are installed from git submodules
+    # Install with: pip install -e modules/pyfesom2/ -e modules/SkillMetrics/
 ]
 
 [project.optional-dependencies]
