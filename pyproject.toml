@@ -30,8 +30,17 @@ dependencies = [
     "netCDF4",
     "scipy",
     "pathlib",
-    # Note: pyfesom2 and SkillMetrics are installed from git submodules
-    # Install with: pip install -e modules/pyfesom2/ -e modules/SkillMetrics/
+    # Additional dependencies from bundled submodules (pyfesom2 and SkillMetrics)
+    "xlsxwriter",      # SkillMetrics
+    "ipython",         # pyfesom2
+    "joblib",          # pyfesom2
+    "numba",           # pyfesom2
+    "pyresample",      # pyfesom2
+    "seawater",        # pyfesom2
+    "shapely",         # pyfesom2
+    "pyproj",          # pyfesom2
+    "pymap3d",         # pyfesom2
+    "tqdm",            # pyfesom2
 ]
 
 [project.optional-dependencies]
@@ -45,7 +54,7 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["src", "modules/pyfesom2", "modules/SkillMetrics"]
 
 [project.scripts]
 py_f2recom = "py_f2recom.cli:main"
