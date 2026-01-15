@@ -13,3 +13,4 @@ from .profiles import *
 from .loading import *
 from .core import *
 from .cli import *
+from .datasets import *

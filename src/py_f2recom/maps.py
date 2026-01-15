@@ -14,6 +14,7 @@ from scipy.interpolate import griddata
 import scipy.io as spio
 from pathlib import Path
 import xarray as xr
+from .loading import *
 
 class plot_maps_woa_sal:
     '''
@@ -82,7 +83,7 @@ class plot_maps_woa_sal:
                                how="mean", compute=True, runid=self.runname, silent=self.verbose)
             
         # load WOA data  -------------------------------------------------------------------------------------
-        WOA_input = WOAdata(self.runname,self.resultpath,self.mesh,self.ncpath,self.WOAvar, get_overview=self.get_overview)
+        WOA_input = load_woa_data(self.runname,self.resultpath,self.mesh,self.ncpath,self.WOAvar, get_overview=self.get_overview)
         woa_int = WOA_input.woa_int    
         
         labelwoa = 'WOA'
@@ -373,7 +374,7 @@ class plot_maps_woa_temp:
                                how="mean", compute=True, runid=self.runname, silent=self.verbose)
 
         # load WOA data  -------------------------------------------------------------------------------------
-        WOA_input = WOAdata(self.runname,self.resultpath,self.mesh,self.ncpath,self.WOAvar, get_overview=self.get_overview)
+        WOA_input = load_woa_data(self.runname,self.resultpath,self.mesh,self.ncpath,self.WOAvar, get_overview=self.get_overview)
         woa_int = WOA_input.woa_int    
         
         labelwoa = 'WOA'
@@ -688,7 +689,7 @@ class plot_maps_phc_sal:
 
             
         # load PHC data  -------------------------------------------------------------------------------------
-        PHC_input = PHCdata(self.runname,self.resultpath,self.mesh,self.ncpath,self.PHCvar, get_overview=self.get_overview)
+        PHC_input = load_phc_data(self.runname,self.resultpath,self.mesh,self.ncpath,self.PHCvar, get_overview=self.get_overview)
         sal_int = PHC_input.phc_int    
         
         labelphc = 'PHC'
@@ -980,7 +981,7 @@ class plot_maps_phc_temp:
                                how="mean", compute=True, runid=self.runname, silent=self.verbose)
 
         # load PHC data  -------------------------------------------------------------------------------------
-        PHC_input = PHCdata(self.runname,self.resultpath,self.mesh,self.ncpath,self.PHCvar, get_overview=self.get_overview)
+        PHC_input = load_phc_data(self.runname,self.resultpath,self.mesh,self.ncpath,self.PHCvar, get_overview=self.get_overview)
         temp_int = PHC_input.phc_int    
         
         labelphc = 'PHC'

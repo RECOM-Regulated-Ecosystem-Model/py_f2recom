@@ -2,10 +2,12 @@
 Core functionality for FESOM2-REcoM2 analysis.
 """
 import xarray as xr
-import numpy as np
 import contextlib
 import io
+import matplotlib.cm as cm
+import cmocean as cmo
 import pyfesom2 as pf
+import numpy as np
 
 def get_seasonal_data(self, dataset, index):
     seasonal_lat = []
