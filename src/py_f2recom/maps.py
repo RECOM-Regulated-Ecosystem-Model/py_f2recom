@@ -15,6 +15,7 @@ import scipy.io as spio
 from pathlib import Path
 import xarray as xr
 from .loading import *
+from .datasets import *
 
 class plot_maps_woa_sal:
     '''
@@ -25,7 +26,13 @@ class plot_maps_woa_sal:
     -Projection 'rob' (Robinson) results in strange values, please use only 'pc' Plate Carree!
     -Use of 'use_temp_mask' loads additional FESOM 'temp' out put to use as a mask for the 'salt' output.
     '''
-    def __init__(self,resultpath,savepath,mesh,ncpath,first_year,last_year,
+    def __init__(self,
+                 mesh,
+                 resultpath = resultpath,
+                 savepath = savepath,
+                 ncpath = ncfileSal,
+                 first_year = first_year,
+                 last_year = last_year,
                  WOAvar='s_an',
                  mapproj = 'rob',
                  savefig=False,

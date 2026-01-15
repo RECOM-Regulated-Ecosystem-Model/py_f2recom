@@ -29,7 +29,7 @@ def get_seasonal_data(self, dataset, index):
     return(seasonal_lat)
 
 # plot mesh nodal area overview 
-def plot_mesh_area(mesh, plot_globe = True, plot_poles=False, plot_zoom=False, levels=[]):
+def plot_mesh_area(mesh, plot_globe = True, plot_poles=False, plot_zoom=False, levels=np.arange(0,10500,500)):
     '''check mesh setup nodal and area
     input: mesh object
     '''
@@ -51,7 +51,7 @@ def plot_mesh_area(mesh, plot_globe = True, plot_poles=False, plot_zoom=False, l
         pf.tplot(mesh, np.array(nod_area[0,:])/1e6, ptype='tri', box=[-30, 30, -30, 30], mapproj='merc',lw=0.5,units='nodal area')
 
 # plot mesh resolution overview 
-def plot_mesh_resolution(mesh, plot_globe = True, plot_poles=False, plot_zoom=False, levels=[]):
+def plot_mesh_resolution(mesh, plot_globe = True, plot_poles=False, plot_zoom=False, levels=np.arange(0,125,5)):
     '''check mesh resolution
     input: mesh objects
     '''
