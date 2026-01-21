@@ -8,6 +8,8 @@ import matplotlib.cm as cm
 import cmocean as cmo
 import pyfesom2 as pf
 import numpy as np
+import skill_metrics as sm
+import matplotlib.pyplot as plt
 
 def get_seasonal_data(self, dataset, index):
     seasonal_lat = []

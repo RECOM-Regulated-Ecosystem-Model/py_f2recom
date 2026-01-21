@@ -600,7 +600,6 @@ class load_mld_data:
         #import pickle
 
         import pyfesom2 as pf
-        from Py_f2recom_toolbox import load_mat
 
         # load NetCDF ------------------------------------------------------------------------------------
         print('***\nLoading MLD file: {0}\n***'.format(self.matfileMLD))

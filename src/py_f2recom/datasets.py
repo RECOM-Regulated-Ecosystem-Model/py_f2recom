@@ -34,8 +34,8 @@ else:
 
 
 # period of analysis ------------------------------------------------------------------------------------
-first_year_maps = 2012
-first_year = 2012
+first_year_maps = 2019
+first_year = 2019
 last_year  = 2021
     
 years = np.arange(first_year,last_year+1,1)
@@ -102,4 +102,4 @@ if(verbose):
         resultpath, savepath, htmlpath, htmlname,years[0],years[-1]))
     #print('\nLast ten years are \n{0}'.format(years_last10))
 
-print('\n==> You can configure the post-processing parameters & paths in : py_f2recom/src/datasets.py')
+print('\n==> You can configure the post-processing parameters & paths in : py_f2recom/src/datasets.py\n')

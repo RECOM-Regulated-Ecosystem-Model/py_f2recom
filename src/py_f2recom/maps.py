@@ -16,6 +16,7 @@ from pathlib import Path
 import xarray as xr
 from .loading import *
 from .datasets import *
+from .core import *
 
 class plot_maps_woa_sal:
     '''
@@ -201,7 +202,7 @@ class plot_maps_woa_sal:
                     if np.isnan(np.min(SALfesom)): print('WARNING: The interpolated FESOM field contains NaNs at depth')       
 
                     title = 'Normalized Taylor Diagram for Salinity'
-                    plt_Taylor_comp(sal_int_ma,SALfesom, mask=True, title=title, depth_array=depth_array, mesh=mesh,verbose = self.verbose)
+                    plot_taylor_comp(sal_int_ma,SALfesom, mask=True, title=title, depth_array=depth_array, mesh=mesh,verbose = self.verbose)
                     
                     
                     # fig export  -------------------------------------------------------------------------------------
@@ -300,7 +301,7 @@ class plot_maps_woa_sal:
                 if np.isnan(np.min(fesom_mean)): print('WARNING: The interpolated FESOM field contains NaNs at depth')
 
                 title = 'Taylor Diagram for Salinity (mean over depth, max = {0}-{1}m)'.format(uplow[0],uplow[1]),
-                plt_Taylor_norm(woa_int_ma_mean,fesom_mean,mask=True,title=title,verbose = self.verbose)
+                plot_taylor_norm(woa_int_ma_mean,fesom_mean,mask=True,title=title,verbose = self.verbose)
                 
                 
                 # fig export  -------------------------------------------------------------------------------------
@@ -323,7 +324,13 @@ class plot_maps_woa_temp:
     -Specify depth_limit to define upper/lower boundaries of the layer.
     -Use layerwise = True to compare a set of depth layers.
     '''
-    def __init__(self,resultpath,savepath,mesh,ncpath,first_year,last_year,
+    def __init__(self,
+                 mesh,
+                 resultpath = resultpath,
+                 savepath = savepath,
+                 ncpath = ncfileTemp,
+                 first_year = first_year,
+                 last_year = last_year,
                  WOAvar='t_an',
                  mapproj='rob',
                  cmap = 'inferno',
@@ -498,7 +505,7 @@ class plot_maps_woa_temp:
                     if np.isnan(np.min(fesom)): print('WARNING: The interpolated FESOM field contains NaNs at depth')
 
                     title = 'Normalized Taylor Diagram for Temperature'
-                    plt_Taylor_comp(temp_int_ma,TEMPfesom,mask=True,title=title, depth_array=depth_array, mesh=mesh,verbose = self.verbose)
+                    plot_taylor_comp(temp_int_ma,TEMPfesom,mask=True,title=title, depth_array=depth_array, mesh=mesh,verbose = self.verbose)
                     
                     
                     # fig export  -------------------------------------------------------------------------------------
@@ -606,7 +613,7 @@ class plot_maps_woa_temp:
                 if np.isnan(np.min(fesom_mean)): print('WARNING: The interpolated FESOM field contains NaNs at depth')
 
                 title = 'Taylor Diagram for T \n(mean over depth,  max = {0}-{1}m)'.format(uplow[0],uplow[1]),
-                plt_Taylor_norm(woa_int_ma_mean,fesom_mean,mask=True,title=title, verbose = self.verbose)
+                plot_taylor_norm(woa_int_ma_mean,fesom_mean,mask=True,title=title, verbose = self.verbose)
                 
                 
                 # fig export  -------------------------------------------------------------------------------------
@@ -630,7 +637,13 @@ class plot_maps_phc_sal:
     -Projection 'rob' (Robinson) results in strange values, please use only 'pc' Plate Carree!
     -Use of 'use_temp_mask' loads additional FESOM 'temp' out put to use as a mask for the 'salt' output.
     '''
-    def __init__(self,resultpath,savepath,mesh,ncpath,first_year,last_year,
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncpath=ncfilePHC3,
+                 first_year=first_year,
+                 last_year=last_year,
                  PHCvar='salt',
                  mapproj = 'rob',
                  savefig=False,
@@ -805,7 +818,7 @@ class plot_maps_phc_sal:
                 if np.isnan(np.min(fesom)): print('WARNING: The interpolated FESOM field contains NaNs at depth')       
 
                 title = 'Normalized Taylor Diagram for Salinity'
-                plt_Taylor_comp(sal_int_ma,SALfesom, mask=True, title=title, depth_array=depth_array, mesh=mesh,verbose = True)
+                plot_taylor_comp(sal_int_ma,SALfesom, mask=True, title=title, depth_array=depth_array, mesh=mesh,verbose = True)
                 
                 plt.show(block=False)
                 # fig export  -------------------------------------------------------------------------------------
@@ -908,7 +921,7 @@ class plot_maps_phc_sal:
                 if np.isnan(np.min(fesom_mean)): print('WARNING: The interpolated FESOM field contains NaNs at depth')
 
                 title = 'Taylor Diagram for Salinity \n(mean over depth, max = {0}m)'.format(uplow[0],uplow[1]),
-                plt_Taylor_norm(sal_int_ma_mean,fesom_mean,mask=True,title=title,verbose = True)
+                plot_taylor_norm(sal_int_ma_mean,fesom_mean,mask=True,title=title,verbose = True)
                 
                 
                 # fig export  -------------------------------------------------------------------------------------
@@ -930,7 +943,13 @@ class plot_maps_phc_temp:
     -Specify depth_limit to use only upper layers with this depth maximum.
     -Use layerwise = True to compare a set of depth.
     '''
-    def __init__(self,resultpath,savepath,mesh,ncpath,first_year,last_year,
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncpath=ncfilePHC3,
+                 first_year=first_year,
+                 last_year=last_year,
                  PHCvar='temp',
                  mapproj='rob',
                  cmap = 'inferno',
@@ -1224,7 +1243,13 @@ class plot_maps_phc_temp_regulargrid:
     -use layerwise = True to compare a set of depth
     -use depth_limit to specify maximum depth for mean-over-depth comparison
     '''
-    def __init__(self,runname,resultpath,savepath,mesh,ncpath,first_year,last_year,
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncpath=ncfilePHC3,
+                 first_year=first_year,
+                 last_year=last_year,
                  mapproj='pc',
                  cmap = 'viridis',
                  savefig=False,
@@ -1405,7 +1430,12 @@ class plot_maps_phc_sal_regulargrid:
     -use layerwise = True to compare a set of depth
     -use depth_limit to specify maximum depth for mean-over-depth comparison
     '''
-    def __init__(self,runname,resultpath,savepath,mesh,ncpath,first_year,last_year,
+    def __init__(mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncpath=ncfilePHC3,
+                 first_year=first_year,
+                 last_year=last_year,
                  mapproj='pc',
                  cmap = 'viridis',
                  savefig=False,
@@ -1574,7 +1604,13 @@ class plot_maps_pco2:
                 mapproj='pc',savefig=False,layerwise=False, runname='fesom')
     '''
     
-    def __init__(self,resultpath,savepath,mesh,ncpath,first_year,last_year,
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncpath=ncfilepCO2,
+                 first_year=first_year,
+                 last_year=last_year,
                  mapproj='pc',
                  SOCATvar='TAlk',
                  cmap='viridis',
@@ -3166,8 +3202,14 @@ class plot_maps_mld:
     self.lat latitude
     '''
     
-    def __init__(self,resultpath,savepath,mesh,matfileMLD,first_year,last_year,
-                 mapproj='rob',cmap_extension='max',cmap = 'viridis',
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncfile = matfileMLD,
+                 first_year=first_year,
+                 last_year=last_year,
+                 mapproj='rob',cmap_extension='max',cmap = cmo.cm.deep_r,
                  savefig=False,runname='fesom',
                  output=False,plotting=True, verbose = False, Taylor=True):
 
@@ -3204,7 +3246,7 @@ class plot_maps_mld:
         
         # load Atlas MLD data -------------------------------------------------------------------------------------
         
-        MLDinput = MLDdata(runname,resultpath,mesh,matfileMLD)
+        MLDinput = load_mld_data(runname,resultpath,mesh,matfileMLD)
         MLD_sept_int = np.array(MLDinput.mld_sept_int)
         MLD_marc_int = np.array(MLDinput.mld_marc_int)
         
@@ -3273,7 +3315,7 @@ class plot_maps_mld:
                                 cmap = self.cmap,
                                 cmap_extension=self.cmap_extension,
                                 titles=labelfesom,
-                                box= box, ptype="cflog",
+                                box= box,
                                )
 
             # Atlas 
@@ -3285,7 +3327,7 @@ class plot_maps_mld:
                                 cmap = self.cmap,
                                 cmap_extension=self.cmap_extension,
                                 titles=labelAtlas,
-                                box= box, ptype="cflog",
+                                box= box,
                                )
 
             # FESOM - Atlas
@@ -3297,7 +3339,7 @@ class plot_maps_mld:
                                 cmap = 'RdBu_r',
                                 cmap_extension='both',
                                 titles='FESOM - Atlas',
-                                box= box, ptype="cflog",
+                                box= box,
                                )
             
             
@@ -3311,7 +3353,7 @@ class plot_maps_mld:
                                 mapproj=self.mapproj, # robinson projection takes more time!
                                 cmap = self.cmap,
                                 cmap_extension=self.cmap_extension,
-                                box= box, ptype="cflog",
+                                box= box,
                                )
 
             # Atlas 
@@ -3323,7 +3365,7 @@ class plot_maps_mld:
                                 mapproj=self.mapproj, # robinson projection takes more time!
                                 cmap = self.cmap,
                                 cmap_extension=self.cmap_extension,
-                                box= box, ptype="cflog",
+                                box= box,
                                )
             
             # FESOM - Atlas 
@@ -3334,7 +3376,7 @@ class plot_maps_mld:
                                 mapproj=self.mapproj, # robinson projection takes more time!
                                 cmap = 'RdBu_r',
                                 cmap_extension='both',
-                                box= box, ptype="cflog",
+                                box= box,
                                )
             
             fig.subplots_adjust(bottom=0.2)
