@@ -23,14 +23,18 @@ https://gitlab.dkrz.de/py_recom/py_recom
 For example, **pyfesom2** is included as a submodule.
 
 HOW-TO-INSTALL:
+```
 -> git clone --recurse-submodules https://github.com/RECOM-Regulated-Ecosystem-Model/py_f2recom.git
 -> conda create -n pyf2recom python=3.10 pip wheel
 -> conda activate pyf2recom
 -> cd py_f2recom/
 -> pip install -e .
-OPTIONAL, EXPORT KERNEL TO JUPYTERHUB:
--> python -m ipykernel install --name pyf2recom --user
+```
 
+OPTIONAL (EXPORT THE KERNEL TO JUPYTERHUB):
+```
+-> python -m ipykernel install --name pyf2recom --user
+```
 
 [![asciicast](https://asciinema.org/a/FsP6HiP3yEklfbWj.svg)](https://asciinema.org/a/FsP6HiP3yEklfbWj)
 
