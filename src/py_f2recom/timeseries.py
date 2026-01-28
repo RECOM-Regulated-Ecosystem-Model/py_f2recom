@@ -11,6 +11,11 @@ import math
 import skill_metrics as sm
 from scipy.interpolate import griddata
 from pathlib import Path
+from glob import glob as gg
+import pandas as pd
+from .loading import *
+from .datasets import *
+from .core import *
 
 class plot_timeseries_seaice:   
     '''
@@ -21,8 +26,18 @@ class plot_timeseries_seaice:
     (N = "Arctic", S = "Southern")
     type can be area or extent.
     '''
-    def __init__(self,resultpath,savepath,mesh,ncpath,first_year,last_year,
-                 savefig=False,regional='N',type = 'area', plotting=True, output=False):
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncpath=ncfilesic,
+                 first_year=first_year,
+                 last_year=last_year,
+                 savefig=False,
+                 region='N',
+                 type = 'area',
+                 plotting=True,
+                 output=False):
 
         self.resultpath = resultpath
         self.savepath = savepath
@@ -30,7 +45,7 @@ class plot_timeseries_seaice:
         self.fyear = first_year
         self.lyear = last_year
         self.savefig = savefig
-        self.regional = regional
+        self.region = region
         self.plotting = plotting
         self.ncpath = ncpath
         self.type = type
@@ -41,29 +56,29 @@ class plot_timeseries_seaice:
         files = np.sort(files)
         ice = pf.get_data(resultpath,'a_ice', years, mesh, how=None, compute=False, silent=True)
  
-        if regional == 'N':
+        if region == 'N':
             df = pd.read_csv(files[8], sep='\s*,\s*', index_col = 'year', parse_dates=True) #
             df = df.loc[((df.index.year>=self.fyear) & (df.index.year<=self.lyear))]
-        elif regional == 'S':
+        elif region == 'S':
             df = pd.read_csv(files[14], sep='\s*,\s*', index_col = 'year', parse_dates=True) #
             df = df.loc[((df.index.year>=self.fyear) & (df.index.year<=self.lyear))]
         
         if type == 'area':
-            ice = pf.ice_area(ice, mesh, hemisphere=self.regional)
+            ice = pf.ice_area(ice, mesh, hemisphere=self.region)
         elif type == 'extent':
-            ice = pf.ice_ext(ice, mesh, hemisphere=self.regional)
+            ice = pf.ice_ext(ice, mesh, hemisphere=self.region)
 
-        if regional == 'N':
+        if region == 'N':
             ice= ice.loc[ice['time'].dt.month==9]
-        elif regional == 'S':
+        elif region == 'S':
             ice= ice.loc[ice['time'].dt.month==3]
         
         fig = plt.figure(figsize=(8,5), constrained_layout=True)
         plt.plot(years, ice/1e12, label = 'model', lw =3)
-        plt.plot(years, df[self.type], label = 'satellite', lw =3)
-        if regional == 'N':
+        plt.plot(df.index.year, df[self.type], label = 'satellite', lw =3)
+        if region == 'N':
             plt.title('September Arctic Ocean sea-ice')
-        elif regional == 'S':
+        elif region == 'S':
             plt.title('March Southern Ocean sea-ice')
         plt.legend()
         plt.ylabel('sea-ice '+self.type+' [million km$^{-2}$]')

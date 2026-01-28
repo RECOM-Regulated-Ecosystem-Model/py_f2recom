@@ -2,15 +2,19 @@
 Visualization tools for vertical profiles in REcoM model output.
 """
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+import matplotlib.cm as cm
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import pyfesom2 as pf
 import numpy as np
-import matplotlib.cm as cm
 import math 
 import skill_metrics as sm
 from scipy.interpolate import griddata
 from pathlib import Path
+from .loading import *
+from .datasets import *
+from .core import *
 
 class plot_profiles_ts:   
     '''
@@ -20,15 +24,25 @@ class plot_profiles_ts:
     if regional = True, profiles will plotted for each main basins + Global Ocean. 
     Otherwise, just the Global Ocean.
     '''
-    def __init__(self,resultpath,savepath,mesh,ncfileTEMP,ncfileSAL,
-                 first_year,last_year,savefig=False, regional=True, maxdepth = 5,runname='fesom'):
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncfileTemp=ncfileTemp,
+                 ncfileSal=ncfileSal,
+                 first_year=first_year,
+                 last_year=last_year,
+                 savefig=False, 
+                 regional=True, 
+                 maxdepth = 5,
+                 runname='fesom'):
 
         self.runname = runname
         self.resultpath = resultpath
         self.savepath = savepath
         self.mesh = mesh
-        self.ncfileTEMP = ncfileTEMP
-        self.ncfileSAL = ncfileSAL
+        self.ncfileTemp = ncfileTemp
+        self.ncfileSal = ncfileSal
         self.fyear = first_year
         self.lyear = last_year
         self.savefig = savefig
@@ -51,10 +65,10 @@ class plot_profiles_ts:
         SALfesom = pf.get_data(resultpath, "salt", years, mesh,
                                how="mean", compute=True, runid=runid, silent=True)
         
-        WOA_input = load_woa_data(self.runname,self.resultpath,self.mesh,self.ncfileSAL,'s_an', get_overview=False)
+        WOA_input = load_woa_data(self.runname,self.resultpath,self.mesh,self.ncfileSal,'s_an', get_overview=False)
         sal_int = WOA_input.woa_int  
         
-        WOA_input = load_woa_data(self.runname,self.resultpath,self.mesh,self.ncfileTEMP,'t_an', get_overview=False)
+        WOA_input = load_woa_data(self.runname,self.resultpath,self.mesh,self.ncfileTemp,'t_an', get_overview=False)
         temp_int = WOA_input.woa_int  
 
         SALwoa = np.copy(sal_int)

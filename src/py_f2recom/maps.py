@@ -1263,7 +1263,7 @@ class plot_maps_phc_temp_regulargrid:
         self.resultpath = resultpath
         self.savepath = savepath
         self.mesh = mesh
-        self.ncpath = ncpath
+        self.ncfile = ncfile
         self.fyear = first_year
         self.lyear = last_year
         self.mapproj = mapproj
@@ -1298,7 +1298,7 @@ class plot_maps_phc_temp_regulargrid:
         #!ncdump -h $meshdiag
 
         diag = pf.get_meshdiag(mesh,meshdiag=meshdiag, runid=self.runname)             
-        w = pf.climatology('ncfile')
+        w = pf.climatology(ncfile)
         
         box=[-180, 180, -89, 90]
         left, right, down, up = box
