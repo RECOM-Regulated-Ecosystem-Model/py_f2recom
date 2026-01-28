@@ -36,7 +36,8 @@ OPTIONAL (EXPORT THE KERNEL TO JUPYTERHUB):
 -> python -m ipykernel install --name pyf2recom --user
 ```
 
-[![asciicast](https://asciinema.org/a/FsP6HiP3yEklfbWj.svg)](https://asciinema.org/a/FsP6HiP3yEklfbWj)
+install demo video: https://asciinema.org/a/FsP6HiP3yEklfbWj
+
 
 (c) REcoM development team (MarESys Judith Hauck's group). No warranty. 
 Main developper : Laurent Oziel, Tanvi Nagwekar
