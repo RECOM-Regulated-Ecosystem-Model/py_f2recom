@@ -3,11 +3,11 @@ Visualization tools for maps in REcoM model output.
 """
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
+import matplotlib.cm as cm
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import pyfesom2 as pf
 import numpy as np
-import matplotlib.cm as cm
 import math 
 import skill_metrics as sm
 from scipy.interpolate import griddata
@@ -1247,7 +1247,7 @@ class plot_maps_phc_temp_regulargrid:
                  mesh,
                  resultpath=resultpath,
                  savepath=savepath,
-                 ncpath=ncfilePHC3,
+                 ncfile=ncfilePHC3,
                  first_year=first_year,
                  last_year=last_year,
                  mapproj='pc',
@@ -1256,7 +1256,8 @@ class plot_maps_phc_temp_regulargrid:
                  layerwise=False,depth_array=[],
                  depth_limit=100,
                  cmap_extension='max',
-                 verbose=False):
+                 verbose=False,
+                 runname='fesom'):
 
         self.runname = runname
         self.resultpath = resultpath
@@ -1297,7 +1298,7 @@ class plot_maps_phc_temp_regulargrid:
         #!ncdump -h $meshdiag
 
         diag = pf.get_meshdiag(mesh,meshdiag=meshdiag, runid=self.runname)             
-        w = pf.climatology('/work/ollie/ogurses/input/phc3.0_annual.nc')
+        w = pf.climatology('ncfile')
         
         box=[-180, 180, -89, 90]
         left, right, down, up = box
@@ -1430,10 +1431,11 @@ class plot_maps_phc_sal_regulargrid:
     -use layerwise = True to compare a set of depth
     -use depth_limit to specify maximum depth for mean-over-depth comparison
     '''
-    def __init__(mesh,
+    def __init__(self,
+                 mesh,
                  resultpath=resultpath,
                  savepath=savepath,
-                 ncpath=ncfilePHC3,
+                 ncfile=ncfilePHC3,
                  first_year=first_year,
                  last_year=last_year,
                  mapproj='pc',
@@ -1441,13 +1443,14 @@ class plot_maps_phc_sal_regulargrid:
                  savefig=False,
                  layerwise=False,depth_array=[],
                  depth_limit=100,
-                 verbose=False):
+                 verbose=False,
+                 runname='fesom'):
 
         self.runname = runname
         self.resultpath = resultpath
         self.savepath = savepath
         self.mesh = mesh
-        self.ncpath = ncpath
+        self.ncfile = ncfile
         self.fyear = first_year
         self.lyear = last_year
         self.mapproj = mapproj
@@ -1481,7 +1484,7 @@ class plot_maps_phc_sal_regulargrid:
         #!ncdump -h $meshdiag
 
         diag = pf.get_meshdiag(mesh,meshdiag=meshdiag, runid=self.runname)             
-        w = pf.climatology('/work/ollie/ogurses/input/phc3.0_annual.nc')
+        w = pf.climatology(ncfile)
         
         levels = np.arange(23,37,.5)
         levels_diff = np.arange(-3,3.2,0.2)
@@ -3209,6 +3212,7 @@ class plot_maps_mld:
                  ncfile = matfileMLD,
                  first_year=first_year,
                  last_year=last_year,
+                 ptype="cflog",
                  mapproj='rob',cmap_extension='max',cmap = cmo.cm.deep_r,
                  savefig=False,runname='fesom',
                  output=False,plotting=True, verbose = False, Taylor=True):
@@ -3316,6 +3320,7 @@ class plot_maps_mld:
                                 cmap_extension=self.cmap_extension,
                                 titles=labelfesom,
                                 box= box,
+                                ptype=ptype,
                                )
 
             # Atlas 
@@ -3328,6 +3333,7 @@ class plot_maps_mld:
                                 cmap_extension=self.cmap_extension,
                                 titles=labelAtlas,
                                 box= box,
+                                ptype=ptype,
                                )
 
             # FESOM - Atlas
@@ -3354,6 +3360,7 @@ class plot_maps_mld:
                                 cmap = self.cmap,
                                 cmap_extension=self.cmap_extension,
                                 box= box,
+                                ptype=ptype,
                                )
 
             # Atlas 
@@ -3366,6 +3373,7 @@ class plot_maps_mld:
                                 cmap = self.cmap,
                                 cmap_extension=self.cmap_extension,
                                 box= box,
+                                ptype=ptype,
                                )
             
             # FESOM - Atlas 
