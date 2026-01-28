@@ -5020,10 +5020,16 @@ class plot_maps_do2:
     -use layerwise = True to compare a set of depth
     -use depth_limit to specify maximum depth for mean-over-depth comparison
     '''
-    def __init__(self,resultpath,savepath,mesh,ncpath,first_year,last_year,
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncpath=ncfileDO2,
+                 first_year=first_year,
+                 last_year=last_year,
                  WOAvar='oxygen_mmol',
                  mapproj='rob',
-                 cmap = 'viridis',
+                 cmap = cmo.cm.oxy,
                  savefig=False,
                  layerwise=False,depth_array=[],
                  uplow=[0, 100],
@@ -5192,7 +5198,7 @@ class plot_maps_do2:
                     if np.isnan(np.min(DO2fesom)): print('WARNING: The interpolated FESOM field contains NaNs at depth')
 
                     title = 'Normalized Taylor Diagram for DO2'
-                    plt_Taylor_comp(O2_int_ma,DO2fesom,mask=True,title=title, depth_array=depth_array, mesh=mesh)
+                    plot_taylor_comp(O2_int_ma,DO2fesom,mask=True,title=title, depth_array=depth_array, mesh=mesh)
                     
                     
                     # fig export  -------------------------------------------------------------------------------------
@@ -5307,7 +5313,7 @@ class plot_maps_do2:
                 if np.isnan(np.min(fesom_mean)): print('WARNING: The interpolated FESOM field contains NaNs at depth')
 
                 title = 'Taylor Diagram for DO$_2$ \n(mean over depth, max = {0}-{1}m)'.format(uplow[0],uplow[1]),
-                plt_Taylor_norm(woa_int_ma_mean,fesom_mean,mask=True,title=title,verbose = True)
+                plot_taylor_norm(woa_int_ma_mean,fesom_mean,mask=True,title=title,verbose = True)
                 
                 
                 # Taylor fig export  
