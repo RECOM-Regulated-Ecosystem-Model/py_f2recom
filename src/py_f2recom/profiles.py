@@ -295,8 +295,16 @@ class plot_profiles_nut:
     if regional = True, profiles will plotted for each main basins + Global Ocean. 
     Otherwise, just the Global Ocean.
     '''
-    def __init__(self,resultpath,savepath,mesh,ncfileDSi,ncfileDIN,ncfileDFe,
-                 first_year,last_year,savefig=False, regional=True, maxdepth = 6000, runname='fesom'):
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncfileDSi=ncfileDSi,
+                 ncfileDIN=ncfileDIN,
+                 ncfileDFe=ncfileDFe_pisces,
+                 first_year=first_year,
+                 last_year=last_year,
+                 savefig=False, regional=True, maxdepth = 6000, runname='fesom'):
 
         self.runname = runname
         self.resultpath = resultpath
@@ -331,7 +339,7 @@ class plot_profiles_nut:
                                how="mean", compute=True, runid=runid, silent=True)
 
         DINwoa_input = load_woa_data(runid,resultpath,mesh,ncfileDIN,'n_an', get_overview=False)
-        DSiwoa_input = load_woa_datadata(runid,resultpath,mesh,ncfileDSi,'i_an', get_overview=False)
+        DSiwoa_input = load_woa_data(runid,resultpath,mesh,ncfileDSi,'i_an', get_overview=False)
         DFepisces_input = load_pisces_data(runid,resultpath,mesh,ncfileDFe,'Fe', get_overview=False)
         
         DFepisces = DFepisces_input.pisces_int
@@ -645,8 +653,14 @@ class plot_profiles_do2:
     if regional = True, profiles will plotted for each main basins + Global Ocean. 
     Otherwise, just the Global Ocean.
     '''
-    def __init__(self,resultpath,savepath,mesh,ncfileDO2,
-                 first_year,last_year,savefig=False, regional=True,runname='fesom'):
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncfileDO2=ncfileDO2,
+                 first_year=first_year,
+                 last_year = last_year,
+                 savefig=False, regional=True,runname='fesom'):
 
         self.runname = runname
         self.resultpath = resultpath
@@ -803,8 +817,15 @@ class plot_profiles_carbs:
     if regional = True, profiles will plotted for each main basins + Global Ocean. 
     Otherwise, just the Global Ocean.
     '''
-    def __init__(self,resultpath,savepath,mesh,ncfileAlk,ncfileDIC,
-                 first_year,last_year,savefig=False, regional=True,runname='fesom'):
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncfileDIC=ncfileDIC,
+                 ncfileAlk=ncfileAlk,
+                 first_year=first_year,
+                 last_year=last_year,
+                 savefig=False, regional=True,runname='fesom'):
 
         self.runname = runname
         self.resultpath = resultpath

@@ -13,6 +13,7 @@ from scipy.interpolate import griddata
 from pathlib import Path
 from glob import glob as gg
 import pandas as pd
+from netCDF4 import Dataset
 from .loading import *
 from .datasets import *
 from .core import *
@@ -96,7 +97,13 @@ class plot_seasonalcycle_bio:
 
     '''
 
-    def __init__(self,resultpath,savepath,mesh,first_year,last_year,type,
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 type='Chl',
+                 first_year=first_year,
+                 last_year=last_year,
                  mapproj='rob',
                  cmap = 'viridis',
                  savefig=False,
@@ -112,25 +119,13 @@ class plot_seasonalcycle_bio:
         self.fyear = first_year
         self.lyear = last_year
         self.type = type
-        self.mapproj = mapproj
         self.cmap = cmap
         self.savefig = savefig
         self.verbose = verbose
         self.plotting = plotting
-        # self.frequency = frequency
         self.output = output
-
-        if self.mapproj == 'rob':
-            box=[-180, 180, -90, 90]
-        elif self.mapproj == 'pc':
-            box=[-180, 180, -90, 90]
-        elif self.mapproj == 'sp':
-            box=[-180, 180, -90, -30]
-        elif self.mapproj == 'np':
-            box=[-180, 180, 60, 90]
-            
-        self.mapproj = pf.get_proj(self.mapproj)
-
+        self.years = np.arange(self.fyear, self.lyear+1,1)
+        self.months = np.arange(0,12)
         
         # set indexes to selected regions: 
         # Arctic:
@@ -145,293 +140,183 @@ class plot_seasonalcycle_bio:
         regions = [("Arc1", Arc1), ("Arc2", Arc2), ("Arc3", Arc3), ("SO1", SO1), ("SO2", SO2), ("SO3", SO3)]
 
         # load FESOM data ---------------------------------------------------------------------------------------
+        if type == 'NPP':
+            NPPd = pf.get_data(resultpath, "NPPd", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+            NPPn = pf.get_data(resultpath, "NPPn", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+            NPPn = NPPn.groupby('time.month').mean().compute()
+            NPPd = NPPd.groupby('time.month').mean().compute()
 
-        self.years = np.arange(self.fyear, self.lyear+1,1)
-
-        self.months = np.arange(0,12)
-
- 
-        # ==============================================================================
-        # Loading Chl-a/NPP data
-        
-        Phy_seasonal = {}
-        for region,ind in regions: 
-            Phy_seasonal[f'Phy_seasonal_{region}'] = []
+            cocco_path = Path(self.resultpath + '/CoccoChl.fesom.'+str(first_year)+'.nc')
+            phaeo_path = Path(self.resultpath + '/PhaeoChl.fesom.'+str(first_year)+'.nc')
+            if phaeo_path.is_file():
+                NPPp = pf.get_data(resultpath, "NPPp", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+                NPPp = NPPp.groupby('time.month').mean().compute()
+            if cocco_path.is_file():
+                NPPc = pf.get_data(resultpath, "NPPc", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+                NPPc = NPPc.groupby('time.month').mean().compute()
             
-        Dia_seasonal = {}
-        for region,ind in regions: 
-            Dia_seasonal[f'Dia_seasonal_{region}'] = []
-
-        Cocco_seasonal = {}
-        for region,ind in regions: 
-            Cocco_seasonal[f'Cocco_seasonal_{region}'] = []
-
-        Phaeo_seasonal = {}  
-        for region,ind in regions: 
-            Phaeo_seasonal[f'Phaeo_seasonal_{region}'] = []
-
-        
-        for year in self.years:
-
-            if self.type == 'Chl':
-                
-                # Small Phytoplankton:                
-                phy_path = Path(self.resultpath + '/PhyChl.fesom.'+str(year)+'.nc')
-                phy_data = Dataset(phy_path,'r')
-                PhyChl = phy_data.variables['PhyChl'][:]
-    
-                for region,ind in regions: 
-                    Phy_seasonal[f'Phy_seasonal_{region}'].append(self.get_seansonal_data(PhyChl, ind)) 
-                
-                #print(Phy_seasonal[f'Phy_seasonal_Arc1'])
-                
-                # Diatoms:
-                dia_path = Path(self.resultpath + '/DiaChl.fesom.'+str(year)+'.nc')
-                dia_data = Dataset(dia_path,'r')
-                DiaChl = dia_data.variables['DiaChl'][:]
-    
-                for region,ind in regions: 
-                    Dia_seasonal[f'Dia_seasonal_{region}'].append(self.get_seansonal_data(DiaChl, ind))
-                
-                # Coccos: 
-                cocco_path = Path(self.resultpath + '/CoccoChl.fesom.'+str(year)+'.nc') # assuming that coccos were used for the entire simulation if they were used in the first year of simulation
-                
-                if cocco_path.is_file():
-                    cocco_data = Dataset(cocco_path,'r')
-                    CoccoChl = cocco_data.variables['CoccoChl'][:]
-    
-                    for region,ind in regions: 
-                        Cocco_seasonal[f'Cocco_seasonal_{region}'].append(self.get_seansonal_data(CoccoChl, ind))
-
-                # Phaeo: 
-                phaeo_path = Path(self.resultpath + '/PhaeoChl.fesom.'+str(year)+'.nc') # assuming that phaeo was used for the entire simulation if they were used in the first year of simulation
-    
+            if 'month' in NPPd.dims:
+                datad = np.zeros((len(NPPd.month),len(regions)))*np.nan
+                datan = np.zeros((len(NPPn.month),len(regions)))*np.nan
                 if phaeo_path.is_file():
-                    phaeo_data = Dataset(phaeo_path,'r')
-                    PhaeoChl = phaeo_data.variables['PhaeoChl'][:]
-    
-                    for region,ind in regions: 
-                        Phaeo_seasonal[f'Phaeo_seasonal_{region}'].append(self.get_seansonal_data(PhaeoChl, ind))
-                #_____________________
-                # Set label with unit:
-                ylabel = 'Chl.a [mg m$^{-3}$]'
-                
-            
-            elif self.type == 'NPP':
-
-                # Small Phytoplankton:                 
-                phy_path = Path(self.resultpath + '/NPPn.fesom.'+str(year)+'.nc')
-                phy_data = Dataset(phy_path,'r')
-                PhyNPP = phy_data.variables['NPPn'][:]
-    
-                for region,ind in regions: 
-                    Phy_seasonal[f'Phy_seasonal_{region}'].append(self.get_seansonal_data(PhyNPP, ind))
-
-                
-                # Diatoms:
-                dia_path = Path(self.resultpath + '/NPPd.fesom.'+str(year)+'.nc')
-                dia_data = Dataset(dia_path,'r')
-                DiaNPP = dia_data.variables['NPPd'][:]
-    
-                for region,ind in regions: 
-                    Dia_seasonal[f'Dia_seasonal_{region}'].append(self.get_seansonal_data(DiaNPP, ind))
-
-                # Coccos:                 
-                cocco_path = Path(self.resultpath + '/NPPc.fesom.'+str(year)+'.nc') # assuming that coccos were used for the entire simulation if they were used in the first year of simulation
-                
+                     datap = np.zeros((len(NPPp.month),len(regions)))*np.nan
                 if cocco_path.is_file():
-                    cocco_data = Dataset(cocco_path,'r')
-                    CoccoNPP = cocco_data.variables['NPPc'][:]
-    
-                    for region,ind in regions: 
-                        Cocco_seasonal[f'Cocco_seasonal_{region}'].append(self.get_seansonal_data(CoccoNPP, ind))
-
-                # Phaeo:                 
-                phaeo_path = Path(self.resultpath + '/NPPp.fesom.'+str(year)+'.nc') # assuming that phaeo was used for the entire simulation if they were used in the first year of simulation
-    
-                if phaeo_path.is_file():
-                    phaeo_data = Dataset(phaeo_path,'r')
-                    PhaeoNPP = phaeo_data.variables['NPPp'][:]
-    
-                    for region,ind in regions: 
-                        Phaeo_seasonal[f'Phaeo_seasonal_{region}'].append(self.get_seansonal_data(PhaeoNPP, ind))
-                #______________________-
-                # Set label with unit:
-                ylabel = 'NPP [mg C m$^{-2}$ d$^{-1}$]'
-            
-
+                    datac = np.zeros((len(NPPc.month),len(regions)))*np.nan
+                    
+                i = 0
+                for region,mask in regions: 
+                    datad[:,i] = pf.areamean_data(NPPd, mesh, mask=mask)
+                    datan[:,i] = pf.areamean_data(NPPn, mesh, mask=mask)
+                    if phaeo_path.is_file():
+                        datap[:,i] = pf.areamean_data(NPPp, mesh, mask=mask)
+                    if cocco_path.is_file():
+                        datac[:,i] = pf.areamean_data(NPPc, mesh, mask=mask)
+                    i = i+1
             else:
-                return("Please select 'CHl' or 'NPP'.")
-
-        #==================================
-        # Adjusting data format
-
-        #Small phytoplankton:
-        
-        Phy_seasonal_colwise = {}
-        Phy_seasonal_mean = {}
-        
-        for region, ind in regions: 
-            Phy_seasonal[f'Phy_seasonal_{region}'] = np.array(Phy_seasonal[f'Phy_seasonal_{region}'])
-            Phy_seasonal_colwise[f'Phy_seasonal_{region}'] = np.transpose(Phy_seasonal[f'Phy_seasonal_{region}'])
-            Phy_seasonal_mean[f'Phy_seasonal_{region}'] = Phy_seasonal_colwise[f'Phy_seasonal_{region}'].mean(axis=1)
-
-            # rearrange data for SO: 
-            if region.startswith("SO"):
-                Phy_seasonal_mean[f'Phy_seasonal_{region}'] = np.concatenate((Phy_seasonal_mean[f'Phy_seasonal_{region}'][6:], 
-                                                                                        Phy_seasonal_mean[f'Phy_seasonal_{region}'][:6]))
-        
-        #sys.exit()                                    
-        #______________________________________________________________
-        # Diamtoms
-        
-        Dia_seasonal_colwise = {}
-        Dia_seasonal_mean = {}
-        
-        for region, ind in regions: 
-            Dia_seasonal[f'Dia_seasonal_{region}'] = np.array(Dia_seasonal[f'Dia_seasonal_{region}'])
-            Dia_seasonal_colwise[f'Dia_seasonal_{region}'] = np.transpose(Dia_seasonal[f'Dia_seasonal_{region}'])
-            Dia_seasonal_mean[f'Dia_seasonal_{region}'] = Dia_seasonal_colwise[f'Dia_seasonal_{region}'].mean(axis=1)
-
-            # rearrange data for SO: 
-            if region.startswith("SO"):
-                Dia_seasonal_mean[f'Dia_seasonal_{region}'] = np.concatenate((Dia_seasonal_mean[f'Dia_seasonal_{region}'][6:], 
-                                                                                        Dia_seasonal_mean[f'Dia_seasonal_{region}'][:6]))
+                print('data is yearly, seasonal cycle calculation not possible')
                 
-        #______________________________________________________________
-        # Coccolithophores
+        elif type == 'Chl':
+            NPPn = pf.get_data(resultpath, "PhyChl", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+            NPPd = pf.get_data(resultpath, "DiaChl", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+            NPPn = NPPn.groupby('time.month').mean().compute()
+            NPPd = NPPd.groupby('time.month').mean().compute()
 
-        Cocco_seasonal_colwise = {}
-        Cocco_seasonal_mean = {}
-        
-        for region, ind in regions: 
-            Cocco_seasonal[f'Cocco_seasonal_{region}'] = np.array(Cocco_seasonal[f'Cocco_seasonal_{region}'])
-            Cocco_seasonal_colwise[f'Cocco_seasonal_{region}'] = np.transpose(Cocco_seasonal[f'Cocco_seasonal_{region}'])
-            Cocco_seasonal_mean[f'Cocco_seasonal_{region}'] = Cocco_seasonal_colwise[f'Cocco_seasonal_{region}'].mean(axis=1)
+            cocco_path = Path(self.resultpath + '/CoccoChl.fesom.'+str(first_year)+'.nc')
+            phaeo_path = Path(self.resultpath + '/PhaeoChl.fesom.'+str(first_year)+'.nc')
+            if phaeo_path.is_file():
+                NPPp = pf.get_data(resultpath, "PhaeoChl", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+                NPPp = NPPp.groupby('time.month').mean().compute()
+            if cocco_path.is_file():
+                NPPc = pf.get_data(resultpath, "CoccoChl", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+                NPPc = NPPc.groupby('time.month').mean().compute()
 
-            # rearrange data for SO: 
-            if region.startswith("SO"):
-                Cocco_seasonal_mean[f'Cocco_seasonal_{region}'] = np.concatenate((Cocco_seasonal_mean[f'Cocco_seasonal_{region}'][6:], 
-                                                                                            Cocco_seasonal_mean[f'Cocco_seasonal_{region}'][:6]))
-            
+            if 'month' in NPPd.dims:
+                datad = np.zeros((len(NPPd.month),len(regions)))*np.nan
+                datan = np.zeros((len(NPPn.month),len(regions)))*np.nan
+                if phaeo_path.is_file():
+                     datap = np.zeros((len(NPPp.month),len(regions)))*np.nan
+                if cocco_path.is_file():
+                    datac = np.zeros((len(NPPc.month),len(regions)))*np.nan
+                    
+                i = 0
+                for region,mask in regions:
+                    datad[:,i] = pf.areamean_data(NPPd[:,:,0], mesh, mask=mask)
+                    datan[:,i] = pf.areamean_data(NPPn[:,:,0], mesh, mask=mask)
+                    if phaeo_path.is_file():
+                        datap[:,i] = pf.areamean_data(NPPp[:,:,0], mesh, mask=mask)
+                    if cocco_path.is_file():
+                        datac[:,i] = pf.areamean_data(NPPc[:,:,0], mesh, mask=mask)
+                    i = i+1
+            else:
+                print('data is yearly, seasonal cycle calculation not possible')
 
-        #______________________________________________________________
-        # Phaeocystis
-
-        Phaeo_seasonal_colwise = {}
-        Phaeo_seasonal_mean = {}
-        
-        for region, ind in regions: 
-            Phaeo_seasonal[f'Phaeo_seasonal_{region}'] = np.array(Phaeo_seasonal[f'Phaeo_seasonal_{region}'])
-            Phaeo_seasonal_colwise[f'Phaeo_seasonal_{region}'] = np.transpose(Phaeo_seasonal[f'Phaeo_seasonal_{region}'])
-            Phaeo_seasonal_mean[f'Phaeo_seasonal_{region}'] = Phaeo_seasonal_colwise[f'Phaeo_seasonal_{region}'].mean(axis=1)
-
-            # rearrange data for SO: 
-            if region.startswith("SO"):
-                Phaeo_seasonal_mean[f'Phaeo_seasonal_{region}'] = np.concatenate((Phaeo_seasonal_mean[f'Phaeo_seasonal_{region}'][6:], 
-                                                                                            Phaeo_seasonal_mean[f'Phaeo_seasonal_{region}'][:6]))
-          
         #================================
         # Plotting: 
 
         months_name = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
         months_name_SO = np.concatenate((months_name[6:], months_name[:6]))
 
-        fig = plt.figure(figsize=(12,9), facecolor='w', edgecolor='k', tight_layout = True)
+        fig, axes = plt.subplots(2, 3, figsize=(12, 9),
+                             gridspec_kw={'hspace': 0.4, 'wspace': 0.1}, 
+                             facecolor='w', edgecolor='k', tight_layout = True)
+        axes = axes.flatten()
 
         # ARCTIC -----------------------------------------------
         
-        plt.subplot(2,3,1)
-        plt.plot(months_name, Phy_seasonal_mean[f'Phy_seasonal_Arc1'][:], label='SmallPhy')
-        plt.plot(months_name, Dia_seasonal_mean[f'Dia_seasonal_Arc1'], label='Diatoms')
+        axes[0].plot(months_name, datan[:,0], label='SmallPhy',lw=3)
+        axes[0].plot(months_name, datad[:,0], label='Diatoms',lw=3)
         if cocco_path.is_file():
-            plt.plot(months_name, Cocco_seasonal_mean[f'Cocco_seasonal_Arc1'], label='Cocco')
+            axes[0].plot(months_name, datac[:,0], label='Cocco',lw=3)
         if phaeo_path.is_file():
-            plt.plot(months_name, Phaeo_seasonal_mean[f'Phaeo_seasonal_Arc1'], label='Phaeo')
+            axes[0].plot(months_name, datap[:,0], label='Phaeo',lw=3)
 
-        plt.ylabel(ylabel)
+        #axes[0].set_ylabel(ylabel)
+        
+
         if self.type == 'Chl':
-            plt.ylim(0,0.5)
+            axes[0].set_ylim(0,1.)
+            axes[0].set_ylabel('Chl [mg Chl m$^{-3}$]')
         elif self.type == 'NPP':
-            plt.ylim(0,35)
-        plt.title('Seasonal cycle in the Arctic (Lat: 60-70)')
+            axes[0].set_ylim(0,35)
+            axes[0].set_ylabel('NPP [mg C m$^{-2}$ d$^{-1}$]')
+        axes[0].set_title('60-70 $^\circ$N')
 
-        plt.subplot(2,3,2)
-        plt.plot(months_name, Phy_seasonal_mean[f'Phy_seasonal_Arc2'], label='SmallPhy')
-        plt.plot(months_name, Dia_seasonal_mean[f'Dia_seasonal_Arc2'], label='Diatoms')
+        axes[1].plot(months_name, datan[:,1], label='SmallPhy',lw=3)
+        axes[1].plot(months_name, datad[:,1], label='Diatoms',lw=3)
         if cocco_path.is_file():
-            plt.plot(months_name, Cocco_seasonal_mean[f'Cocco_seasonal_Arc2'], label='Cocco')
+            axes[1].plot(months_name, datac[:,1], label='Cocco',lw=3)
         if phaeo_path.is_file():
-            plt.plot(months_name, Phaeo_seasonal_mean[f'Phaeo_seasonal_Arc2'], label='Phaeo')
+            axes[1].plot(months_name, datap[:,1], label='Phaeo',lw=3)
 
-        plt.ylabel(ylabel)
+        
         if self.type == 'Chl':
-            plt.ylim(0,0.5)
+            axes[1].set_ylim(0,1.)
         elif self.type == 'NPP':
-            plt.ylim(0,35)
-        plt.title('Seasonal cycle in the Arctic (Lat: 70-80)')
+            axes[1].set_ylim(0,35)
+        axes[1].set_title('70-80 $^\circ$N')
 
-        plt.subplot(2,3,3)
-        plt.plot(months_name, Phy_seasonal_mean[f'Phy_seasonal_Arc3'], label='SmallPhy')
-        plt.plot(months_name, Dia_seasonal_mean[f'Dia_seasonal_Arc3'], label='Diatoms')
+        axes[2].plot(months_name, datan[:,2], label='SmallPhy',lw=3)
+        axes[2].plot(months_name, datad[:,2], label='Diatoms',lw=3)
         if cocco_path.is_file():
-            plt.plot(months_name, Cocco_seasonal_mean[f'Cocco_seasonal_Arc3'], label='Cocco')
+            axes[2].plot(months_name, datac[:,2], label='Cocco',lw=3)
         if phaeo_path.is_file():
-            plt.plot(months_name, Phaeo_seasonal_mean[f'Phaeo_seasonal_Arc3'], label='Phaeo')
+            axes[2].plot(months_name, datap[:,2], label='Phaeo',lw=3)
 
-        plt.ylabel(ylabel)
         if self.type == 'Chl':
-            plt.ylim(0,0.5)
+            axes[2].set_ylim(0,1.)
         elif self.type == 'NPP':
-            plt.ylim(0,35)
-        plt.title('Seasonal cycle in the Arctic (Lat: 80-90)')
+            axes[2].set_ylim(0,35)
+        axes[2].set_title('80-90 $^\circ$N')
 
         # SO --------------------------------------------------
         
-        plt.subplot(2,3,4)
-        plt.plot(months_name_SO, Phy_seasonal_mean[f'Phy_seasonal_SO1'], label='SmallPhy')
-        plt.plot(months_name_SO, Dia_seasonal_mean[f'Dia_seasonal_SO1'], label='Diatoms')
+        axes[3].plot(months_name_SO, datan[:,3], label='SmallPhy',lw=3)
+        axes[3].plot(months_name_SO, datad[:,3], label='Diatoms',lw=3)
         if cocco_path.is_file():
-            plt.plot(months_name_SO, Cocco_seasonal_mean[f'Cocco_seasonal_SO1'], label='Cocco')
+            axes[3].plot(months_name_SO, datac[:,3], label='Cocco',lw=3)
         if phaeo_path.is_file():
-            plt.plot(months_name_SO, Phaeo_seasonal_mean[f'Phaeo_seasonal_SO1'], label='Phaeo')
+            axes[3].plot(months_name_SO, datap[:,3], label='Phaeo',lw=3)
 
-        plt.ylabel(ylabel)
         if self.type == 'Chl':
-            plt.ylim(0,0.85)
+            axes[3].set_ylim(0,1.)
+            axes[3].set_ylabel('Chl [mg Chl m$^{-3}$]')
         elif self.type == 'NPP':
-            plt.ylim(0,37)
-        plt.title('Seasonal cycle in the SO (Lat: 40-50)')
+            axes[3].set_ylim(0,35)
+            axes[3].set_ylabel('NPP [mg C m$^{-2}$ d$^{-1}$]')
+        axes[3].set_title('40-50 $^\circ$S')
 
-        plt.subplot(2,3,5)
-        plt.plot(months_name_SO, Phy_seasonal_mean[f'Phy_seasonal_SO2'], label='SmallPhy')
-        plt.plot(months_name_SO, Dia_seasonal_mean[f'Dia_seasonal_SO2'], label='Diatoms')
+        axes[4].plot(months_name_SO, datan[:,4], label='SmallPhy',lw=3)
+        axes[4].plot(months_name_SO, datad[:,4], label='Diatoms',lw=3)
         if cocco_path.is_file():
-            plt.plot(months_name_SO, Cocco_seasonal_mean[f'Cocco_seasonal_SO3'], label='Cocco')
+            axes[4].plot(months_name_SO, datac[:,4], label='Cocco',lw=3)
         if phaeo_path.is_file():
-            plt.plot(months_name_SO, Phaeo_seasonal_mean[f'Phaeo_seasonal_SO3'], label='Phaeo')
+            axes[4].plot(months_name_SO, datap[:,4], label='Phaeo',lw=3)
 
-        plt.ylabel(ylabel)
         if self.type == 'Chl':
-            plt.ylim(0,0.85)
+            axes[4].set_ylim(0,1.)
         elif self.type == 'NPP':
-            plt.ylim(0,37)
-        plt.title('Seasonal cycle in the SO (Lat: 50-60)')
+            axes[4].set_ylim(0,35)
+        axes[4].set_title('50-60 $^\circ$S')
 
-        plt.subplot(2,3,6)
-        plt.plot(months_name_SO, Phy_seasonal_mean[f'Phy_seasonal_SO3'], label='SmallPhy')
-        plt.plot(months_name_SO, Dia_seasonal_mean[f'Dia_seasonal_SO3'], label='Diatoms')
+        axes[5].plot(months_name_SO, datan[:,5], label='SmallPhy',lw=3)
+        axes[5].plot(months_name_SO, datad[:,5], label='Diatoms',lw=3)
         if cocco_path.is_file():
-            plt.plot(months_name_SO, Cocco_seasonal_mean[f'Cocco_seasonal_SO3'], label='Cocco')
+            axes[5].plot(months_name_SO, datac[:,5], label='Cocco',lw=3)
         if phaeo_path.is_file():
-            plt.plot(months_name_SO, Phaeo_seasonal_mean[f'Phaeo_seasonal_SO3'], label='Phaeo')
+            axes[5].plot(months_name_SO, datap[:,5], label='Phaeo',lw=3)
 
-        plt.ylabel(ylabel)
         if self.type == 'Chl':
-            plt.ylim(0,0.85)
+            axes[5].set_ylim(0,1.)
         elif self.type == 'NPP':
-            plt.ylim(0,37)
-        plt.title('Seasonal cycle in the SO (Lat: 60-70)')
+            axes[5].set_ylim(0,35)
+        axes[5].set_title('60-70 $^\circ$S')
+
+        axes[0].set_xticklabels(months_name, rotation=90, ha='right')
+        axes[1].set_xticklabels(months_name, rotation=90, ha='right')
+        axes[2].set_xticklabels(months_name, rotation=90, ha='right')
+        axes[3].set_xticklabels(months_name, rotation=90, ha='right')
+        axes[4].set_xticklabels(months_name, rotation=90, ha='right')
+        axes[5].set_xticklabels(months_name, rotation=90, ha='right')
 
         labels=('SmallPhy','Diatoms','Coccos','Phaeo')
 

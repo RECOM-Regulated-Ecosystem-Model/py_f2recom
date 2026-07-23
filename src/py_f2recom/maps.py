@@ -1113,7 +1113,7 @@ class plot_maps_phc_temp:
                 if np.isnan(np.min(fesom)): print('WARNING: The interpolated FESOM field contains NaNs at depth')
 
                 title = 'Normalized Taylor Diagram for Temperature'
-                plt_Taylor_comp(temp_int_ma,fesom,mask=True,title=title, depth_array=depth_array, mesh=mesh,verbose = True)
+                plt_taylor_comp(temp_int_ma,fesom,mask=True,title=title, depth_array=depth_array, mesh=mesh,verbose = True)
                 
                 
                 # fig export  -------------------------------------------------------------------------------------
@@ -1219,7 +1219,7 @@ class plot_maps_phc_temp:
                     if np.isnan(np.min(fesom_mean)): print('WARNING: The interpolated FESOM field contains NaNs at depth')
 
                     title = 'Taylor Diagram for T \n(mean over depth,  max = {0}-{1}m)'.format(uplow[0],uplow[1]),
-                    plt_Taylor_norm(temp_int_ma_mean,fesom_mean,mask=True,title=title, verbose = True)
+                    plot_taylor_norm(temp_int_ma_mean,fesom_mean,mask=True,title=title, verbose = True)
                     
                     
                     # fig export  -------------------------------------------------------------------------------------
@@ -1827,7 +1827,7 @@ class plot_maps_pco2:
                 aux = np.where(np.isfinite(SOCAT_mean))
 
                 title = 'Taylor Diagram for pCO$_2$'
-                plt_Taylor_norm(SOCAT_mean[aux],FESOM_mean[aux],mask=True,title=title)
+                plot_taylor_norm(SOCAT_mean[aux],FESOM_mean[aux],mask=True,title=title)
 
                 # fig export  
                 if(self.savefig==True):                
@@ -1849,7 +1849,13 @@ class plot_maps_co2f_Takahashi:
     class CO2f_Takahashi_comp(resultpath,savepath,meshpath,txtfile,first_year,last_year,
                  mapproj='pc',savefig=False,layerwise=False,runname='fesom')
     '''
-    def __init__(self,resultpath,savepath,mesh,txtfile,first_year,last_year,
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncpath=ncfilepCO2,
+                 first_year=first_year,
+                 last_year=last_year,
                  mapproj='rob',
                  cmap='RdBu_r',
                  savefig=False,
@@ -2037,7 +2043,7 @@ class plot_maps_co2f_Takahashi:
             if np.isnan(np.min(CO2ffesom[ind_stat])): print('WARNING: The FESOM field contains NaNs at depth')
 
             title = 'Taylor Diagram for CO$_2$ flux'
-            plt_Taylor_norm(CO2ftakashi_ma[ind_stat],CO2ffesom[ind_stat],mask=True,title=title)
+            plot_taylor_norm(CO2ftakashi_ma[ind_stat],CO2ffesom[ind_stat],mask=True,title=title)
 
             # fig export  -------------------------------------------------------------------------------------
             if(self.savefig==True):                
@@ -2058,7 +2064,13 @@ class plot_maps_pco2_chau:
                 mapproj='pc',savefig=False,layerwise=False,runname='fesom')
     '''
     
-    def __init__(self,resultpath,savepath,mesh,ncpath,first_year,last_year,
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncpath=ncfileCO2f,
+                 first_year=first_year,
+                 last_year=last_year,
                  mapproj='rob',
                  SOCATvar='fgco2',
                  cmap='RdBu_r',
@@ -2319,7 +2331,7 @@ class plot_maps_pco2_chau:
                 elif SOCATvar == 'spco2':
                     title = 'Taylor Diagram for pCO$_2$'
                     
-                plt_Taylor_norm(SOCAT_mean[aux],FESOM_mean[aux],mask=True,title=title)
+                plot_taylor_norm(SOCAT_mean[aux],FESOM_mean[aux],mask=True,title=title)
 
                 # fig export  
                 if(self.savefig==True):                
@@ -2352,9 +2364,16 @@ class plot_maps_npp_global:
     self.lat latitude
     '''
     
-    def __init__(self,resultpath,savepath,mesh,matfileNPPsurf,first_year,last_year,
-                 mapproj='rob',runname='fesom',
-                 savefig=False,output=False,plotting=True,verbose=False,Taylor=True):
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 matfileNPPsurf=matfileNPPvgpm,
+                 first_year=first_year,
+                 last_year=last_year,
+                 mapproj='rob',runname='fesom', 
+                 savefig=False,output=False,
+                 plotting=True,verbose=False,Taylor=True):
 
         self.runname = runname
         self.resultpath = resultpath
@@ -2953,7 +2972,7 @@ class plot_maps_npp_global:
 
             title = 'log10 surface NPP'
             print('\nStatistics for '+title)
-            plt_Taylor_norm(OCNPP_ma_log10[ind_stat],NPPt_log10[ind_stat],
+            plot_taylor_norm(OCNPP_ma_log10[ind_stat],NPPt_log10[ind_stat],
                                         mask=True,title=title)
             
             
@@ -2991,8 +3010,16 @@ class plot_maps_npp_arctic:
     self.lat latitude
     '''
     
-    def __init__(self,resultpath,savepath,mesh,npfile,first_year,last_year, savefig=False,
-                 output=False,plotting=True, verbose = False, Taylor=True,runname = 'fesom'):
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 npfile=npfileNPPArcLewis,
+                 first_year=first_year,
+                 last_year=last_year,
+                 savefig=False,
+                 output=False,plotting=True, 
+                 verbose = False, Taylor=True,runname = 'fesom'):
 
         self.runname = runname
         self.resultpath = resultpath
@@ -3170,7 +3197,7 @@ class plot_maps_npp_arctic:
 
             title = 'log10 NPP'
             print('\nStatistics for '+title)
-            plt_Taylor_norm(NPPsat_ma_log10[ind_stat],NPPfesom_interp_log10[ind_stat],
+            plot_taylor_norm(NPPsat_ma_log10[ind_stat],NPPfesom_interp_log10[ind_stat],
                                     mask=True,title=title)
 
             
@@ -3209,7 +3236,7 @@ class plot_maps_mld:
                  mesh,
                  resultpath=resultpath,
                  savepath=savepath,
-                 ncfile = matfileMLD,
+                 ncpath=ncfilepCO2,
                  first_year=first_year,
                  last_year=last_year,
                  ptype="cflog",
@@ -3450,7 +3477,7 @@ class plot_maps_mld:
 
 #             title = 'MLD'
 #             print('\nStatistics for '+title)
-#             plt_Taylor_norm(OCNPP_ma_log10[ind_stat],NPPt_log10[ind_stat],
+#             plot_taylor_norm(OCNPP_ma_log10[ind_stat],NPPt_log10[ind_stat],
 #                                         mask=True,title=title)
 
 #             # fig export  -------------------------------------------------------------------------------------
@@ -3751,8 +3778,20 @@ class plot_maps_all_pfts:
                             plotting=True, Taylor=True)
     '''
     
-    def __init__(self,resultpath,savepath,mesh,meshpath,first_year,last_year,
-                 mapproj='pc',cmap='RdYlGn',cmap_extension='max',savefig=False,output=False,plotting=True,verbose=False,Taylor=True,runname='fesom'):
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 first_year=first_year,
+                 last_year=last_year,
+                 mapproj='pc',cmap='viridis',
+                 cmap_extension='max',
+                 savefig=False,
+                 output=False,
+                 plotting=True,
+                 verbose=False,
+                 Taylor=True,
+                 runname='fesom'):
 
         self.runname = runname
         self.resultpath = resultpath
@@ -3769,28 +3808,18 @@ class plot_maps_all_pfts:
         self.output = output
         self.plotting = plotting
         self.Taylor = Taylor
-        
-        if self.mapproj == 'rob':
-            box=[-180, 180, -90, 90]
-        elif self.mapproj == 'pc':
-            box=[-180, 180, -90, 90]
-        elif self.mapproj == 'sp':
-            box=[-180, 180, -90, -30]
-        elif self.mapproj == 'np':
-            box=[-180, 180, 60, 90]
-            
-        self.mapproj = pf.get_proj(self.mapproj)
 
         if(self.verbose):
             print('Processing {0}'.format(self.resultpath))
             
             
         years = np.arange(self.fyear, self.lyear+1,1)
+        num_plots = 3 # minimum number of PFTs for 2p1z1d
         
         # Load biomass data and compute layersum and volsum -------------------------------------------------------------------------------
             
         # Diatoms  
-        DiaC = pf.get_data(resultpath, 'DiaC', years, mesh, runid=self.runname, how="mean", compute=True)
+        DiaC = pf.get_data(resultpath, 'DiaC', years, mesh, runid=self.runname, how="mean", compute=True, silent=True)
         DiaC = DiaC * 12.01
         DiaC_layersum = pf.layersum_data(DiaC,mesh,uplow=[0, 6250])
         DiaC_layersum = DiaC_layersum/1e3 # mg/m2 -> g/m2
@@ -3798,7 +3827,7 @@ class plot_maps_all_pfts:
         DiaC_volsum   = DiaC_volsum/1e18 # mg -> Pg
         
         # Small phytoplankton
-        SPC = pf.get_data(resultpath, 'PhyC', years, mesh, runid=self.runname, how="mean", compute=True)
+        SPC = pf.get_data(resultpath, 'PhyC', years, mesh, runid=self.runname, how="mean", compute=True, silent=True)
         SPC = SPC * 12.01
         SPC_layersum = pf.layersum_data(SPC,mesh,uplow=[0, 6250])
         SPC_layersum = SPC_layersum/1e3 # mg/m2 -> g/m2
@@ -3808,7 +3837,8 @@ class plot_maps_all_pfts:
         # Coccolithophores
         cocco_path = Path(self.resultpath + '/CoccoC.fesom.'+str(years[0])+'.nc') 
         if cocco_path.is_file():
-            CoccoC = pf.get_data(resultpath, 'CoccoC', years, mesh, runid=self.runname, how="mean", compute=True)
+            num_plots = num_plots + 1
+            CoccoC = pf.get_data(resultpath, 'CoccoC', years, mesh, runid=self.runname, how="mean", compute=True, silent=True)
             CoccoC = CoccoC * 12.01
             CoccoC_layersum = pf.layersum_data(CoccoC,mesh,uplow=[0, 6250])
             CoccoC_layersum = CoccoC_layersum/1e3 # mg/m2 -> g/m2
@@ -3818,7 +3848,8 @@ class plot_maps_all_pfts:
         # Phaeocystis 
         phaeo_path = Path(self.resultpath + '/PhaeoC.fesom.'+str(years[0])+'.nc') 
         if phaeo_path.is_file():
-            PhaeoC = pf.get_data(resultpath, 'PhaeoC', years, mesh, runid=self.runname, how="mean", compute=True)
+            num_plots = num_plots + 1
+            PhaeoC = pf.get_data(resultpath, 'PhaeoC', years, mesh, runid=self.runname, how="mean", compute=True, silent=True)
             PhaeoC = PhaeoC * 12.01
             PhaeoC_layersum = pf.layersum_data(PhaeoC,mesh,uplow=[0, 6250])
             PhaeoC_layersum = PhaeoC_layersum/1e3 # mg/m2 -> g/m2
@@ -3829,7 +3860,8 @@ class plot_maps_all_pfts:
         # Microzooplankton
         micro_path = Path(self.resultpath + '/Zoo3C.fesom.'+str(years[0])+'.nc') 
         if micro_path.is_file():
-            MicroC = pf.get_data(resultpath, 'Zoo3C', years, mesh, runid=self.runname, how="mean", compute=True)
+            num_plots = num_plots + 1
+            MicroC = pf.get_data(resultpath, 'Zoo3C', years, mesh, runid=self.runname, how="mean", compute=True, silent=True)
             MicroC = MicroC * 12.01
             MicroC_layersum = pf.layersum_data(MicroC,mesh,uplow=[0, 6250])
             MicroC_layersum = MicroC_layersum/1e3 # mg/m2 -> g/m2
@@ -3837,7 +3869,7 @@ class plot_maps_all_pfts:
             MicroC_volsum   = MicroC_volsum/1e18 # mg -> Pg
         
         # Mesozooplankton
-        MesoC = pf.get_data(resultpath, 'HetC', years, mesh, runid=self.runname, how="mean", compute=True)
+        MesoC = pf.get_data(resultpath, 'HetC', years, mesh, runid=self.runname, how="mean", compute=True, silent=True)
         MesoC = MesoC * 12.01
         MesoC_layersum = pf.layersum_data(MesoC,mesh,uplow=[0, 6250])
         MesoC_layersum = MesoC_layersum/1e3 # mg/m2 -> g/m2
@@ -3847,7 +3879,8 @@ class plot_maps_all_pfts:
         # Macrozooplankton
         macro_path = Path(self.resultpath + '/Zoo2C.fesom.'+str(years[0])+'.nc') 
         if macro_path.is_file():
-            MacroC = pf.get_data(resultpath, 'Zoo2C', years, mesh, runid=self.runname, how="mean", compute=True)
+            num_plots = num_plots + 1
+            MacroC = pf.get_data(resultpath, 'Zoo2C', years, mesh, runid=self.runname, how="mean", compute=True, silent=True)
             MacroC = MacroC * 12.01
             MacroC_layersum = pf.layersum_data(MacroC,mesh,uplow=[0, 6250])
             MacroC_layersum = MacroC_layersum/1e3 # mg/m2 -> g/m2
@@ -3868,25 +3901,35 @@ class plot_maps_all_pfts:
         unit_phytoplankton        = 'Biomass [g m$^{-2}$]'
         unit_zooplankton          = 'Biomass [g m$^{-2}$]'
         cmap_extension            = 'max'
-        cmap                      = 'viridis'
-        mapproj                   = 'pc'
-        mapproj                   = pf.get_proj(mapproj)
-        box                       = [-180, 180, -90, 90]
+        cmap                      = self.cmap
+        if self.mapproj == 'rob':
+            box=[-180, 180, -90, 90]
+        elif self.mapproj == 'pc':
+            box=[-180, 180, -90, 90]
+        elif self.mapproj == 'sp':
+            box=[-180, 180, -90, -30]
+        elif self.mapproj == 'np':
+            box=[-180, 180, 60, 90]
+            
+        mapproj = pf.get_proj(self.mapproj)
         
-
-        fig, axes = plt.subplots(4,2,
-                             gridspec_kw={'hspace': 0.2, 'wspace': 0.1},
-                             subplot_kw=dict(projection=mapproj),
-                             figsize=(10,14))
+        # Automatically calculate rows (max 2 columns)
+        cols = 2
+        rows = (num_plots + cols - 1) // cols
+        
+        fig, axes = plt.subplots(rows, cols, figsize=(15, rows * 4),
+                             gridspec_kw={'hspace': 0.4, 'wspace': 0.1},
+                             subplot_kw=dict(projection=mapproj))
+        axes = axes.flatten()
 
         # Diatoms
-        m1 = axes[0,0]
-        f1 = pf.subplot(mesh, fig, m1, [DiaC_layersum[:]], levels = levels_diatoms,
+        f1 = pf.subplot(mesh, fig, axes[0], [DiaC_layersum[:]], levels = levels_diatoms,
                         units = unit_phytoplankton, mapproj = mapproj, cmap = cmap, cmap_extension = cmap_extension, box = box)
-        m1.set_title('Diatoms', fontsize=12)
+        axes[0].set_title('Diatoms', fontsize=12)
 
-
-        cbar1_ax = fig.add_axes([0.135, 0.715, 0.35, 0.01])  # left, bottom, width, height
+        pos = axes[0].get_position()
+        cbar1_ax = fig.add_axes([pos.x0, pos.y0-0.02, 0.35, 0.01])
+        #cbar1_ax = fig.add_axes([0.135, 0.715, 0.35, 0.01])  # left, bottom, width, height
         cbar1 = fig.colorbar(f1,
                         cax = cbar1_ax, 
                         orientation = 'horizontal',
@@ -3898,16 +3941,16 @@ class plot_maps_all_pfts:
         
         DiaC_volsum_text = str(round(DiaC_volsum[0],2))
         DiaC_text_all = r'$\Sigma$ '+DiaC_volsum_text+' Pg C'
-        m1.text(0.7,0.03,DiaC_text_all, transform=m1.transAxes, color='white', fontsize=10, fontweight='bold')
+        axes[0].text(0.7,0.03,DiaC_text_all, transform=axes[0].transAxes, color='white', fontsize=10, fontweight='bold')
         
         
         # Small phytoplankton
-        m2 = axes[0,1]
-        f2 = pf.subplot(mesh, fig, m2, [SPC_layersum[:]], levels = levels_smallphytoplankton,
+        f2 = pf.subplot(mesh, fig, axes[1], [SPC_layersum[:]], levels = levels_smallphytoplankton,
                         units = unit_phytoplankton, mapproj = mapproj, cmap = cmap, cmap_extension = cmap_extension, box = box)
-        m2.set_title('Small phytoplankton', fontsize=12)
+        axes[1].set_title('Small phytoplankton', fontsize=12)
 
-        cbar2_ax = fig.add_axes([0.535, 0.715, 0.35, 0.01])  # left, bottom, width, height
+        pos = axes[1].get_position()
+        cbar2_ax = fig.add_axes([pos.x0, pos.y0-0.02, 0.35, 0.01])
         cbar2 = fig.colorbar(f2,
                         cax = cbar2_ax, 
                         orientation = 'horizontal',
@@ -3919,18 +3962,19 @@ class plot_maps_all_pfts:
         
         SPC_volsum_text = str(round(SPC_volsum[0],2))
         SPC_text_all = r'$\Sigma$ '+SPC_volsum_text+' Pg C'
-        m2.text(0.7,0.03,SPC_text_all, transform=m2.transAxes, color='white', fontsize=10, fontweight='bold')
-        
+        axes[1].text(0.7,0.03,SPC_text_all, transform=axes[1].transAxes, color='white', fontsize=10, fontweight='bold')
+        num_axes = 1
         
         # Coccolithophores
-        m3 = axes[1,0]
         if cocco_path.is_file():
-            f3 = pf.subplot(mesh, fig, m3, [CoccoC_layersum[:]], levels = levels_coccolithophores,
+            num_axes = num_axes + 1
+            f3 = pf.subplot(mesh, fig, axes[num_axes], [CoccoC_layersum[:]], levels = levels_coccolithophores,
                             units = unit_phytoplankton, mapproj = mapproj, cmap = cmap, cmap_extension = cmap_extension, box = box)
-            m3.set_title('Coccolithophores', fontsize=12)
+            axes[num_axes].set_title('Coccolithophores', fontsize=12)
 
 
-            cbar3_ax = fig.add_axes([0.135, 0.515, 0.35, 0.01])  # left, bottom, width, height  
+            pos = axes[num_axes].get_position()
+            cbar3_ax = fig.add_axes([pos.x0, pos.y0-0.02, 0.35, 0.01])  
             cbar3 = fig.colorbar(f3,
                             cax = cbar3_ax, 
                             orientation = 'horizontal',
@@ -3942,20 +3986,18 @@ class plot_maps_all_pfts:
             
             CoccoC_volsum_text = str(round(CoccoC_volsum[0],2))
             CoccoC_text_all = r'$\Sigma$ '+CoccoC_volsum_text+' Pg C'
-            m3.text(0.7,0.03,CoccoC_text_all, transform=m3.transAxes, color='white', fontsize=10, fontweight='bold')
-        
-        
-        elif not cocco_path.is_file() and not phaeo_path.is_file():
-            axes[0,2].remove()
+            axes[num_axes].text(0.7,0.03,CoccoC_text_all, transform=axes[num_axes].transAxes, color='white', fontsize=10, fontweight='bold')
+
 
         # Phaeocystis
         if phaeo_path.is_file():
-            m7 = axes[1,1]
-            f7 = pf.subplot(mesh, fig, m7, [PhaeoC_layersum[:]], levels = levels_phaeocystis,
+            num_axes = num_axes + 1
+            f7 = pf.subplot(mesh, fig, axes[num_axes], [PhaeoC_layersum[:]], levels = levels_phaeocystis,
                             units = unit_phytoplankton, mapproj = mapproj, cmap = cmap, cmap_extension = cmap_extension, box = box)
-            m7.set_title('Phaeocystis', fontsize=12)
+            axes[num_axes].set_title('Phaeocystis', fontsize=12)
             
-            cbar7_ax = fig.add_axes([0.535, 0.515, 0.35, 0.01])  # left, bottom, width, height
+            pos = axes[num_axes].get_position()
+            cbar7_ax = fig.add_axes([pos.x0, pos.y0-0.02, 0.35, 0.01])
             cbar7 = fig.colorbar(f7,
                             cax = cbar7_ax, 
                             orientation = 'horizontal',
@@ -3967,26 +4009,18 @@ class plot_maps_all_pfts:
             
             PhaeoC_volsum_text = str(round(PhaeoC_volsum[0],2))
             PhaeoC_text_all = r'$\Sigma$ '+PhaeoC_volsum_text+' Pg C'
-            m7.text(0.7,0.03,PhaeoC_text_all, transform=m7.transAxes, color='white', fontsize=10, fontweight='bold')
-
-        else: 
-            axes[1,1].remove            
+            axes[num_axes].text(0.7,0.03,PhaeoC_text_all, transform=axes[num_axes].transAxes, color='white', fontsize=10, fontweight='bold')
+         
                 
         # Microzooplankton
-        if phaeo_path.is_file():
-            axis = axes[2,0]
-        else:
-            axis = axes[1,1]
-        m4 = axis
         if micro_path.is_file():
-            f4 = pf.subplot(mesh, fig, m4, [MicroC_layersum[:]], levels = levels_microzooplankton,
+            num_axes = num_axes + 1
+            f4 = pf.subplot(mesh, fig, axes[num_axes], [MicroC_layersum[:]], levels = levels_microzooplankton,
                             units = unit_phytoplankton, mapproj = mapproj, cmap = cmap, cmap_extension = cmap_extension, box = box)
-            m4.set_title('Microzooplankton', fontsize=12)
+            axes[num_axes].set_title('Microzooplankton', fontsize=12)
             
-            if phaeo_path.is_file():
-                cbar4_ax = fig.add_axes([0.135, 0.315, 0.35, 0.01])  # left, bottom, width, height
-            else:
-                cbar4_ax = fig.add_axes([0.535, 0.515, 0.35, 0.01])  # left, bottom, width, height
+            pos = axes[num_axes].get_position()
+            cbar4_ax = fig.add_axes([pos.x0, pos.y0-0.02, 0.35, 0.01])
             cbar4 = fig.colorbar(f4,
                             cax = cbar4_ax, 
                             orientation = 'horizontal',
@@ -3998,27 +4032,17 @@ class plot_maps_all_pfts:
             
             MicroC_volsum_text = str(round(MicroC_volsum[0],2))
             MicroC_text_all = r'$\Sigma$ '+MicroC_volsum_text+' Pg C'
-            m4.text(0.7,0.03,MicroC_text_all, transform=m4.transAxes, color='white', fontsize=10, fontweight='bold')
+            axes[num_axes].text(0.7,0.03,MicroC_text_all, transform=axes[num_axes].transAxes, color='white', fontsize=10, fontweight='bold')
             
-        else:
-            axis.remove()
-        
-        
-        # Mesozooplankton
-        if phaeo_path.is_file() & micro_path.is_file():
-            axis = axes[2,1]
-        else:
-            axis = axes[2,0]
-            
-        m5 = axis
-        f5 = pf.subplot(mesh, fig, m5, [MesoC_layersum[:]], levels = levels_mesozooplankton,
-                        units = unit_phytoplankton, mapproj = mapproj, cmap = cmap, cmap_extension = cmap_extension, box = box)
-        m5.set_title('Mesozooplankton', fontsize=12)
 
-        if phaeo_path.is_file() & micro_path.is_file():
-            cbar5_ax = fig.add_axes([0.535, 0.315, 0.35, 0.01])  # left, bottom, width, height
-        else:
-            cbar5_ax = fig.add_axes([0.135, 0.315, 0.35, 0.01])  # left, bottom, width, height
+            
+        num_axes = num_axes + 1
+        f5 = pf.subplot(mesh, fig, axes[num_axes], [MesoC_layersum[:]], levels = levels_mesozooplankton,
+                        units = unit_phytoplankton, mapproj = mapproj, cmap = cmap, cmap_extension = cmap_extension, box = box)
+        axes[num_axes].set_title('Mesozooplankton', fontsize=12)
+
+        pos = axes[num_axes].get_position()
+        cbar5_ax = fig.add_axes([pos.x0, pos.y0-0.02, 0.35, 0.01])
         cbar5 = fig.colorbar(f5,
                         cax = cbar5_ax, 
                         orientation = 'horizontal',
@@ -4030,24 +4054,18 @@ class plot_maps_all_pfts:
         
         MesoC_volsum_text = str(round(MesoC_volsum[0],2))
         MesoC_text_all = r'$\Sigma$ '+MesoC_volsum_text+' Pg C'
-        m5.text(0.7,0.03,MesoC_text_all, transform=m5.transAxes, color='white', fontsize=10, fontweight='bold')
+        axes[num_axes].text(0.7,0.03,MesoC_text_all, transform=axes[num_axes].transAxes, color='white', fontsize=10, fontweight='bold')
 
         
         # Macrozooplankton
-        if phaeo_path.is_file():
-            axis = axes[3,0]
-        else:
-            axis = axes[2,1]
-        m6 = axis
         if macro_path.is_file():
-            f6 = pf.subplot(mesh, fig, m6, [MacroC_layersum[:]], levels = levels_macrozooplankton,
+            num_axes = num_axes + 1
+            f6 = pf.subplot(mesh, fig, axes[num_axes], [MacroC_layersum[:]], levels = levels_macrozooplankton,
                             units = unit_phytoplankton, mapproj = mapproj, cmap = cmap, cmap_extension = cmap_extension, box = box)
-            m6.set_title('Macrozooplankton', fontsize=12)
+            axes[num_axes].set_title('Macrozooplankton', fontsize=12)
 
-            if phaeo_path.is_file():
-                cbar6_ax = fig.add_axes([0.135, 0.115, 0.35, 0.01])  # left, bottom, width, height
-            else:
-                cbar6_ax = fig.add_axes([0.535, 0.315, 0.35, 0.01])  # left, bottom, width, height
+            pos = axes[num_axes].get_position()
+            cbar6_ax = fig.add_axes([pos.x0, pos.y0-0.02, 0.35, 0.01])
             cbar6 = fig.colorbar(f6,
                             cax = cbar6_ax, 
                             orientation = 'horizontal',
@@ -4059,10 +4077,7 @@ class plot_maps_all_pfts:
             
             MacroC_volsum_text = str(round(MacroC_volsum[0],2))
             MacroC_text_all = r'$\Sigma$ '+MacroC_volsum_text+' Pg C'
-            m6.text(0.7,0.03,MacroC_text_all, transform=m6.transAxes, color='white', fontsize=10, fontweight='bold')
-  
-        else:
-            axis.remove()
+            axes[num_axes].text(0.7,0.03,MacroC_text_all, transform=axes[num_axes].transAxes, color='white', fontsize=10, fontweight='bold')
         
         
         if(self.savefig == True):
@@ -4078,7 +4093,13 @@ class plot_maps_alk:
     class Alkcomp(resultpath,savepath,meshpath,ncpath,first_year,last_year,
                  GLODAPvar='TAlk',mapproj='pc',savefig=False,layerwise=False,runname)
     '''
-    def __init__(self,resultpath,savepath,mesh,ncpath,first_year,last_year,
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncpath=ncfileAlk,
+                 first_year=first_year,
+                 last_year=last_year,
                  GLODAPvar='TAlk_mmol',
                  mapproj='rob',
                  cmap='viridis',
@@ -4258,7 +4279,7 @@ class plot_maps_alk:
                     if np.isnan(np.min(Alkfesom)): print('WARNING: The interpolated FESOM field contains NaNs at depth')
 
                     title = 'Taylor Diagram for Alkalinity'
-                    plt_Taylor_comp(glodap_int_ma,Alkfesom,mask=True,title=title, depth_array=depth_array, mesh=mesh)
+                    plt_taylor_comp(glodap_int_ma,Alkfesom,mask=True,title=title, depth_array=depth_array, mesh=mesh)
                     
                     
                     # fig export  -------------------------------------------------------------------------------------
@@ -4371,7 +4392,7 @@ class plot_maps_alk:
                 if np.isnan(np.min(Alkfesom_mean)): print('WARNING: The interpolated FESOM field contains NaNs')
 
                 title = 'Taylor Diagram for Alk \n(mean over depth, max = {0}-{1}m)'.format(uplow[0],uplow[1]),
-                plt_Taylor_norm(glodap_int_ma_mean,Alkfesom_mean,mask=True,title=title)
+                plot_taylor_norm(glodap_int_ma_mean,Alkfesom_mean,mask=True,title=title)
                 
                 
                 # fig export  -------------------------------------------------------------------------------------
@@ -4394,7 +4415,13 @@ class plot_maps_dic:
     -use layerwise = True to compare a set of depth
     -use depth_limit to specify maximum depth for mean-over-depth comparison
     '''
-    def __init__(self,resultpath,savepath,mesh,ncpath,first_year,last_year,
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncpath=ncfileDIC,
+                 first_year=first_year,
+                 last_year=last_year,
                  GLODAPvar='TCO2_mmol',
                  mapproj='pc',
                  cmap = 'viridis',
@@ -4573,7 +4600,7 @@ class plot_maps_dic:
                     if np.isnan(np.min(DICfesom)): print('WARNING: The interpolated FESOM field contains NaNs at depth')
 
                     title = 'Normalized Taylor Diagram for DIC'
-                    plt_Taylor_comp(dic_int_ma,DICfesom,mask=True,title=title, depth_array=depth_array, mesh=mesh)
+                    plt_taylor_comp(dic_int_ma,DICfesom,mask=True,title=title, depth_array=depth_array, mesh=mesh)
                     
                     
                     # fig export  -------------------------------------------------------------------------------------
@@ -4690,7 +4717,7 @@ class plot_maps_dic:
 
 
                 title = 'Taylor Diagram for DIC \n(mean over depth, max = {0}-{1}m)'.format(uplow[0],uplow[1]),
-                plt_Taylor_norm(glodap_int_ma_mean,DICfesom_mean,mask=True,title=title)
+                plot_taylor_norm(glodap_int_ma_mean,DICfesom_mean,mask=True,title=title)
                 
                 
                 # fig export  
@@ -4715,7 +4742,13 @@ class plot_maps_din:
     -use layerwise = True to compare a set of depth
     -use depth_limit to specify maximum depth for mean-over-depth comparison
     '''
-    def __init__(self,resultpath,savepath,mesh,ncpath,first_year,last_year,
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncpath=ncfileDIN,
+                 first_year=first_year,
+                 last_year=last_year,
                  WOAvar='n_an',
                  mapproj='rob',
                  cmap = 'viridis',
@@ -4886,7 +4919,7 @@ class plot_maps_din:
                     if np.isnan(np.min(DINfesom)): print('WARNING: The interpolated FESOM field contains NaNs at depth')
 
                     title = 'Normalized Taylor Diagram for DIN'
-                    plt_Taylor_comp(din_int_ma,DINfesom,mask=True,title=title, depth_array=depth_array, mesh=mesh)
+                    plt_taylor_comp(din_int_ma,DINfesom,mask=True,title=title, depth_array=depth_array, mesh=mesh)
                     
                     
                     # fig export  -------------------------------------------------------------------------------------
@@ -4997,7 +5030,7 @@ class plot_maps_din:
                 if np.isnan(np.min(fesom_mean)): print('WARNING: The interpolated FESOM field contains NaNs at depth')
 
                 title = 'Taylor Diagram for DIN \n(mean over depth, max = {0}-{1}m)'.format(uplow[0], uplow[1]),
-                plt_Taylor_norm(woa_int_ma_mean,fesom_mean,mask=True,title=title,verbose=True)
+                plot_taylor_norm(woa_int_ma_mean,fesom_mean,mask=True,title=title,verbose=True)
                 
                 
                 # fig export  -------------------------------------------------------------------------------------
@@ -5344,8 +5377,16 @@ class plot_maps_chl_arctic:
     self.unitfesom contains str of FESOM Chl.a unit
     '''
     
-    def __init__(self,resultpath,savepath,mesh,ncfile,first_year,last_year,
-                savefig=False,output=False,plotting=True,verbose=False,Taylor=True,runname='fesom'):
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncfile=ncfileChlArcLewis,
+                 first_year=first_year,
+                 last_year=last_year,
+                 savefig=False,output=False,
+                 plotting=True,verbose=False,
+                 Taylor=True,runname='fesom'):
 
         self.runname = runname
         self.resultpath = resultpath
@@ -5558,7 +5599,7 @@ class plot_maps_chl_arctic:
 
             title = 'log10 surface Chlorophyll'
             print('\nStatistics for '+title)
-            plt_Taylor_norm(Chlsat_ma_log10[ind_stat],Chlfesom_interp_log10[ind_stat],
+            plot_taylor_norm(Chlsat_ma_log10[ind_stat],Chlfesom_interp_log10[ind_stat],
                                     mask=True,title=title)
 
             
@@ -5592,7 +5633,13 @@ class plot_maps_chl_global:
     self.unitfesom contains str of FESOM Chl.a unit
     '''
     
-    def __init__(self,resultpath,savepath,mesh,matfileChlsurf,first_year,last_year,
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 matfileChlsurf=matfileChlGloOCCCI,
+                 first_year=first_year,
+                 last_year=last_year,
                  mapproj='rob',runname='fesom',
                  savefig=False,output=False,plotting=True,verbose=False,Taylor=True):
 
@@ -6207,7 +6254,7 @@ class plot_maps_chl_global:
 
             title = 'log10 surface Chlorophyll'
             print('\nStatistics for '+title)
-            plt_Taylor_norm(OCCCIchla_ma_log10[ind_stat],Chl_total_log10[ind_stat],
+            plot_taylor_norm(OCCCIchla_ma_log10[ind_stat],Chl_total_log10[ind_stat],
                                     mask=True,title=title)
 
             
@@ -6250,7 +6297,13 @@ class plot_maps_chl_southern:
     n_levels = 1: number of mesh levels used for FESOM surface mean
     '''
     
-    def __init__(self,resultpath,savepath,mesh,ncfileJohnson2013,first_year,last_year,
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncfileJohnson2013=ncfileChlSouthernJohnson,
+                 first_year=first_year,
+                 last_year=last_year,
                  savefig=False,
                  n_levels = 1,
                  verbose=False,
@@ -6574,7 +6627,7 @@ class plot_maps_chl_southern:
 
             title = 'log10 surface Chlorophyll'
             print('\nStatistics for '+title)
-            plt_Taylor_norm(chlJohnson_log10[ind_stat],Chl_total_SO_log10[ind_stat],
+            plot_taylor_norm(chlJohnson_log10[ind_stat],Chl_total_SO_log10[ind_stat],
                                     mask=True,title=title)
 
             
@@ -6602,7 +6655,13 @@ class plot_maps_dfe:
     -use layerwise = True to compare a set of depth
     -use depth_limit to specify maximum depth for mean-over-depth comparison
     '''
-    def __init__(self,resultpath,savepath,mesh,ncpath,first_year,last_year,
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncpath=ncfileDFe_pisces,
+                 first_year=first_year,
+                 last_year=last_year,
                  PISCESvar='Fe',
                  mapproj='rob',
                  cmap = 'viridis',
@@ -6774,7 +6833,7 @@ class plot_maps_dfe:
                     if np.isnan(np.min(DFefesom_mean)): print('WARNING: The interpolated FESOM field contains NaNs at depth')
 
                     title = 'Normalized Taylor Diagram for DFe'
-                    plt_Taylor_comp(pisces_int_ma,DFefesom,mask=True,title=title, depth_array=depth_array, mesh=mesh,verbose = self.verbose)
+                    plt_taylor_comp(pisces_int_ma,DFefesom,mask=True,title=title, depth_array=depth_array, mesh=mesh,verbose = self.verbose)
                     
                     
                     # fig export  -------------------------------------------------------------------------------------
@@ -6890,7 +6949,7 @@ class plot_maps_dfe:
                 if np.isnan(np.min(DFefesom_mean)): print('WARNING: The interpolated FESOM field contains NaNs at depth')
 
                 title = 'Taylor Diagram for DFe \n(mean over depth, max = {0}-{1}m)'.format(uplow[0],uplow[1])
-                plt_Taylor_norm(DFepisces_mean,DFefesom_mean,mask=True,title=title)
+                plot_taylor_norm(DFepisces_mean,DFefesom_mean,mask=True,title=title)
                 
                 
                 # fig export  -------------------------------------------------------------------------------------
@@ -6913,7 +6972,13 @@ class plot_maps_dsi:
     -use layerwise = True to compare a set of depth
     -use depth_limit to specify maximum depth for mean-over-depth comparison
     '''
-    def __init__(self,resultpath,savepath,mesh,ncpath,first_year,last_year,
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncpath=ncfileDSi,
+                 first_year=first_year,
+                 last_year=last_year,
                  WOAvar='i_an',
                  mapproj='rob',
                  cmap = 'viridis',
@@ -7010,7 +7075,7 @@ class plot_maps_dsi:
                                 subplot_kw=dict(projection=self.mapproj))
 
                     m1 = axes['A']
-                    levels = np.arange(0,121,1)
+                    levels = np.arange(0,62,2)
                     f1 = pf.subplot(mesh, fig, m1, [fesom_mean],
                                 levels = levels,
                                 units=unitwoa, 
@@ -7085,7 +7150,7 @@ class plot_maps_dsi:
                     if np.isnan(np.min(DSifesom)): print('WARNING: The interpolated FESOM field contains NaNs at depth')
 
                     title = 'Taylor Diagram for DSi at {0} m'.format(plot_depth)
-                    plt_Taylor_comp(dsi_int,DSifesom,mask=True,title=title, depth_array=depth_array, mesh=mesh)
+                    plt_taylor_comp(dsi_int,DSifesom,mask=True,title=title, depth_array=depth_array, mesh=mesh)
 
 
                     # fig export  -------------------------------------------------------------------------------------
@@ -7123,7 +7188,7 @@ class plot_maps_dsi:
                                 subplot_kw=dict(projection=self.mapproj))
                     
                 m1 = axes['A']
-                levels = np.arange(0,121,1)
+                levels = np.arange(0,62,2)
                 f1 = pf.subplot(mesh, fig, m1, [fesom_mean],
                             levels = levels,
                             units=unitwoa, 
@@ -7199,7 +7264,7 @@ class plot_maps_dsi:
                 if np.isnan(np.min(fesom_mean)): print('WARNING: The interpolated FESOM field contains NaNs at depth')
 
                 title = 'Taylor Diagram for DSi \n(mean over depth, max = {0}-{1}m)'.format(uplow[0], uplow[1]),
-                plt_Taylor_norm(woa_int_ma_mean,fesom_mean,mask=True,title=title)
+                plot_taylor_norm(woa_int_ma_mean,fesom_mean,mask=True,title=title)
 
                 # fig export  -------------------------------------------------------------------------------------
                 if(self.savefig==True):                
@@ -7221,11 +7286,18 @@ class plot_maps_limfact:
     Derive and plot most limiting factor (nutrient vs. light) at surface
     
     '''
-    def __init__(self,resultpath,savepath,mesh,first_year,last_year,
-                 mapproj='pc',
-                 cmap = 'viridis',
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 ncpath=ncfileDSi,
+                 first_year=first_year,
+                 last_year=last_year,
+                 Tfunction = 'New_functions',
+                 mapproj='rob',
+                 cmap = cmo.cm.thermal,
                  savefig=False,
-                 verbose=True,
+                 verbose=False,
                  plotting=True,
                  output=True,
                  frequency='yearly',
@@ -7237,6 +7309,7 @@ class plot_maps_limfact:
         self.mesh = mesh
         self.fyear = first_year
         self.lyear = last_year
+        self.Tfunction = Tfunction
         self.mapproj = mapproj
         self.cmap = cmap
         self.savefig = savefig
@@ -7262,68 +7335,192 @@ class plot_maps_limfact:
         #mesh       = pf.load_mesh(self.meshpath)
         years = np.arange(self.fyear, self.lyear+1,1)
         
-        # model parameters
-        alfa_phy, alfa_dia, Pcm, Pcm_d, C2K, rTref, Ae = 0.14, 0.19, 3.0, 3.5, 273.15, 1/288.15, 4500.0
-        NMinSlope, SiMinSlope, NCmin, SiCmin  = 50, 1000, 0.04, 0.04
+        # Check if it is a version with or without coccolithophores
+        cocco_path  = Path(self.resultpath + '/CoccoC.fesom.'+str(years[0])+'.nc') # assuming that coccos were used for the entire simulation 
         
-        for year in years:
-            print(year)
-            year = int(year)
+        # model parameters
+        if Tfunction == 'Arrhenius': # Values for the model version without coccolithophores
+            print("Version with diatoms, small phytoplankton, ")
+            alfa_phy, alfa_dia, Pcm, Pcm_d, C2K, rTref, Ae = 0.14, 0.19, 3.0, 3.5, 273.15, 1/288.15, 4500.0
+            k_din_phy, k_din_dia, k_fe_phy, k_fe_dia, k_si_dia = 0.55, 1.0, 0.04, 0.12, 4.0
+            NMinSlope, SiMinSlope, NCmin, SiCmin  = 50, 1000, 0.04, 0.04
+            a_co2_phy, a_co2_dia = 1.162, 1.040
+            b_co2_phy, b_co2_dia = 48.88, 28.90
+            c_co2_phy, c_co2_dia = 0.2255, 0.8778
+            d_co2_phy, d_co2_dia = 1.023e+07, 2.640e+06
+            Cunits = 976.5625 # Conversion factor between [mol/m3] (model) and [umol/kg] (function): (1000 * 1000) / 1024
+            if cocco_path.is_file(): # Values for the model version with coccolithophores
+                print("... and coccolithophores")
+                alfa_phy, alfa_dia, alfa_cocco, Pcm, Pcm_d, Pcm_c, C2K, rTref, Ae = 0.14, 0.19, 0.10, 3.0, 3.5, 2.8, 273.15, 1/288.15, 4500.0
+                k_din_phy, k_din_dia, k_din_cocco, k_fe_phy, k_fe_dia, k_fe_cocco, k_si_dia = 0.55, 1.0, 0.9, 0.04, 0.12, 0.09, 4.0
+                NMinSlope, SiMinSlope, NCmin, SiCmin  = 50, 1000, 0.04, 0.04
+                a_co2_phy, a_co2_dia, a_co2_cocco = 1.162, 1.040, 1.109
+                b_co2_phy, b_co2_dia, b_co2_cocco = 48.88, 28.90, 37.67
+                c_co2_phy, c_co2_dia, c_co2_cocco = 0.2255, 0.8778, 0.3912
+                d_co2_phy, d_co2_dia, d_co2_cocco = 1.023e+07, 2.640e+06, 9.450e+06
+                Cunits = 976.5625 # Conversion factor between [mol/m3] (model) and [umol/kg] (function): (1000 * 1000) / 1024
+        elif Tfunction == 'New_functions':
+            print("Version with diatoms, small phytoplankton, coccolithophores, and polar Phaeocystis")
+            alfa_phy, alfa_dia, alfa_cocco, alfa_phaeo = 0.15, 0.19, 0.10, 0.17
+            base_phy, base_dia, base_cocco, base_phaeo = -0.7338, -0.2216, -0.231, -0.2310
+            exp_phy, exp_dia, exp_cocco, exp_phaeo = 0.06422, 0.0406, 0.0327, 0.0327
+            k_din_phy, k_din_dia, k_din_cocco, k_din_phaeo, k_fe_phy, k_fe_dia, k_fe_cocco, k_fe_phaeo, k_si_dia = 0.55, 1.0, 0.9, 0.7, 0.04, 0.12, 0.09, 0.09, 4.0
+            NMinSlope, SiMinSlope, NCmin, SiCmin  = 50, 1000, 0.04, 0.04
+            a_co2_phy, a_co2_dia, a_co2_cocco, a_co2_phaeo = 1.162, 1.040, 1.109, 1.077
+            b_co2_phy, b_co2_dia, b_co2_cocco, b_co2_phaeo = 48.88, 28.90, 37.67, 33.06
+            c_co2_phy, c_co2_dia, c_co2_cocco, c_co2_phaeo = 0.2255, 0.8778, 0.3912, 0.5775
+            d_co2_phy, d_co2_dia, d_co2_cocco, d_co2_phaeo = 1.023e+07, 2.640e+06, 9.450e+06, 5.891e+06
+            Cunits = 976.5625 # Conversion factor between [mol/m3] (model) and [umol/kg] (function): (1000 * 1000) / 1024
+        else:
+            print("Please select the temperature function you used (Arrhenius or New_functions)")
             
             # ==============================================================================
             # Loading data
             
-            if frequency == 'monthly':
+        if frequency == 'monthly':
                 print('monthly frequency selected')
-                Felimphy          = np.zeros(shape=(12,len(mesh.x2)))
-                Felimdia          = np.zeros(shape=(12,len(mesh.x2)))
-                Nlimphy           = np.zeros(shape=(12,len(mesh.x2)))
-                Nlimdia           = np.zeros(shape=(12,len(mesh.x2)))
-                Silim             = np.zeros(shape=(12,len(mesh.x2)))
-                Phy_Light_limiter = np.zeros(shape=(12,len(mesh.x2)))
-                Dia_Light_limiter = np.zeros(shape=(12,len(mesh.x2)))
+                T2d_loc             = np.zeros(shape=(12,len(mesh.x2)))
+                Phy_Light_limiter   = np.zeros(shape=(12,len(mesh.x2)))
+                Phy_CO2_limiter     = np.zeros(shape=(12,len(mesh.x2)))
+                Fephy               = np.zeros(shape=(12,len(mesh.x2)))
+                Phy_qlimFac1        = np.zeros(shape=(12,len(mesh.x2),2))
+                Phy_qlimFac         = np.zeros(shape=(12,len(mesh.x2)))
+                Phy_dq              = np.zeros(shape=(12,len(mesh.x2)))
+                Phy_recom_limiter   = np.zeros(shape=(12,len(mesh.x2)))
+                T_phy               = np.zeros(shape=(12,len(mesh.x2)))
+                Pmax_phy            = np.zeros(shape=(12,len(mesh.x2)))
+                Dia_Light_limiter   = np.zeros(shape=(12,len(mesh.x2)))
+                Dia_CO2_limiter     = np.zeros(shape=(12,len(mesh.x2)))
+                Fedia               = np.zeros(shape=(12,len(mesh.x2)))
+                Dia_qlimFac1        = np.zeros(shape=(12,len(mesh.x2),3))
+                Dia_qlimFac         = np.zeros(shape=(12,len(mesh.x2)))
+                Dia_dq              = np.zeros(shape=(12,len(mesh.x2)))
+                Dia_recom_limiterN  = np.zeros(shape=(12,len(mesh.x2)))
+                T_dia               = np.zeros(shape=(12,len(mesh.x2)))
+                Dia_recom_limiterSi = np.zeros(shape=(12,len(mesh.x2)))
+                Pmax_dia            = np.zeros(shape=(12,len(mesh.x2)))
+                months_limphy       = np.zeros(shape=(12,len(mesh.x2)))
+                months_limdia       = np.zeros(shape=(12,len(mesh.x2)))
+                if cocco_path.is_file():
+                    Cocco_Light_limiter = np.zeros(shape=(12,len(mesh.x2)))
+                    Cocco_CO2_limiter   = np.zeros(shape=(12,len(mesh.x2)))
+                    Fecocco             = np.zeros(shape=(12,len(mesh.x2)))
+                    Cocco_qlimFac1      = np.zeros(shape=(12,len(mesh.x2),2))
+                    Cocco_qlimFac       = np.zeros(shape=(12,len(mesh.x2)))
+                    Cocco_dq            = np.zeros(shape=(12,len(mesh.x2)))
+                    Cocco_recom_limiter = np.zeros(shape=(12,len(mesh.x2)))
+                    T_cocco             = np.zeros(shape=(12,len(mesh.x2)))
+                    Pmax_cocco          = np.zeros(shape=(12,len(mesh.x2)))
+                    months_limcocco     = np.zeros(shape=(12,len(mesh.x2)))
+                if Tfunction == 'New_functions':
+                    Phaeo_Light_limiter = np.zeros(shape=(12,len(mesh.x2)))
+                    Phaeo_CO2_limiter   = np.zeros(shape=(12,len(mesh.x2)))
+                    Fephaeo             = np.zeros(shape=(12,len(mesh.x2)))
+                    Phaeo_qlimFac1      = np.zeros(shape=(12,len(mesh.x2),2))
+                    Phaeo_qlimFac       = np.zeros(shape=(12,len(mesh.x2)))
+                    Phaeo_dq            = np.zeros(shape=(12,len(mesh.x2)))
+                    Phaeo_recom_limiter = np.zeros(shape=(12,len(mesh.x2)))
+                    T_phaeo             = np.zeros(shape=(12,len(mesh.x2)))
+                    Pmax_phaeo          = np.zeros(shape=(12,len(mesh.x2)))
+                    months_limphaeo     = np.zeros(shape=(12,len(mesh.x2)))
 
-                DIN = pf.get_data(self.resultpath, "DIN", year, mesh, 
-                                   how=None, compute=True, runid=self.runname, silent=True)
 
-                DSi = pf.get_data(self.resultpath, "DSi", year, mesh, 
-                                   how=None, compute=True, runid=self.runname, silent=True)
+                DIN = pf.get_data(self.resultpath, "DIN", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                DIN = DIN.groupby(time='month').mean().compute()
+            
+                DSi = pf.get_data(self.resultpath, "DSi", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                DSi = DSi.groupby(time='month').mean().compute()
+            
+                DFe = pf.get_data(self.resultpath, "DFe", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                DFe = DFe.groupby(time='month').mean().compute()
+            
+                HCO3 = pf.get_data(self.resultpath, "HCO3", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                HCO3 = HCO3.groupby(time='month').mean().compute()
+            
+                CO2 = pf.get_data(self.resultpath, "CO2", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                CO2 = CO2.groupby(time='month').mean().compute()
+            
+                pH = pf.get_data(self.resultpath, "pH", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                pH = pH.groupby(time='month').mean().compute()
+            
+                PhyC = pf.get_data(self.resultpath, "PhyC", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                PhyC = PhyC.groupby(time='month').mean().compute()
+            
+                PhyN = pf.get_data(self.resultpath, "PhyN", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                PhyN = PhyN.groupby(time='month').mean().compute()
+            
+                PhyChl = pf.get_data(self.resultpath, "PhyChl", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                PhyChl = PhyChl.groupby(time='month').mean().compute()
+            
+                DiaSi = pf.get_data(self.resultpath, "DiaSi", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                DiaSi = DiaSi.groupby(time='month').mean().compute()
+            
+                DiaC = pf.get_data(self.resultpath, "DiaC", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                DiaC = DiaC.groupby(time='month').mean().compute()
 
-                DFe = pf.get_data(self.resultpath, "DFe", year, mesh, 
-                                   how=None, compute=True, runid=self.runname, silent=True)
+                DiaN = pf.get_data(self.resultpath, "DiaN", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                DiaN = DiaN.groupby(time='month').mean().compute()
+            
+                DiaChl = pf.get_data(self.resultpath, "DiaChl", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                DiaChl = DiaChl.groupby(time='month').mean().compute()
+            
+                if cocco_path.is_file():
+                    
+                    CoccoC = pf.get_data(self.resultpath, "CoccoC", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                    CoccoC = CoccoC.groupby(time='month').mean().compute()
 
-                PhyC = pf.get_data(self.resultpath, "PhyC", year, mesh, 
-                                   how=None, compute=True, runid=self.runname, silent=True)
-
-                PhyN = pf.get_data(self.resultpath, "PhyN", year, mesh, 
-                                   how=None, compute=True, runid=self.runname, silent=True)
-
-                PhyChl = pf.get_data(self.resultpath, "PhyChl", year, mesh, 
-                                   how=None, compute=True, runid=self.runname, silent=True)
-
-                DiaSi = pf.get_data(self.resultpath, "DiaSi", year, mesh, 
-                                   how=None, compute=True, runid=self.runname, silent=True)
-
-                DiaC = pf.get_data(self.resultpath, "DiaC", year, mesh, 
-                                   how=None, compute=True, runid=self.runname, silent=True)
-
-                DiaN = pf.get_data(self.resultpath, "DiaN", year, mesh, 
-                                   how=None, compute=True, runid=self.runname, silent=True)
-
-                DiaChl = pf.get_data(self.resultpath, "DiaChl", year, mesh, 
-                                   how=None, compute=True, runid=self.runname, silent=True)
-
-                temp = pf.get_data(self.resultpath, "temp", year, mesh, 
-                                   how=None, compute=True, runid=self.runname, silent=True)
-
-                PAR = pf.get_data(self.resultpath, "PAR", year, mesh, 
-                                   how=None, compute=True, runid=self.runname, silent=True)
-
+                    CoccoN = pf.get_data(self.resultpath, "CoccoN", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                    CoccoN = CoccoN.groupby(time='month').mean().compute()
+                    
+                    CoccoChl = pf.get_data(self.resultpath, "CoccoChl", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                    CoccoChl = CoccoChl.groupby(time='month').mean().compute()
+                    
+                temp = pf.get_data(self.resultpath, "temp", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                temp = temp.groupby(time='month').mean().compute()
+            
+                PAR = pf.get_data(self.resultpath, "PAR", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                PAR = PAR.groupby(time='month').mean().compute()
+            
+                if Tfunction == 'New_functions':
+                    
+                    PhaeoC = pf.get_data(self.resultpath, "PhaeoC", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                    PhaeoC = PhaeoC.groupby(time='month').mean().compute()
+                    
+                    PhaeoN = pf.get_data(self.resultpath, "PhaeoN", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                    PhaeoN = PhaeoN.groupby(time='month').mean().compute()
+                    
+                    PhaeoChl = pf.get_data(self.resultpath, "PhaeoChl", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                    PhaeoChl = PhaeoChl.groupby(time='month').mean().compute()
+                    
                 print(np.shape(DIN))
 
-                DIN = DIN[:,:,0]
-                DSi = DSi[:,:,0]
-                DFe = DFe[:,:,0]
+                DIN  = DIN[:,:,0]
+                DSi  = DSi[:,:,0]
+                DFe  = DFe[:,:,0]
+                HCO3 = HCO3[:,:,0]
+                CO2  = CO2[:,:,0]
+                pH   = pH[:,:,0]
                 PhyC = PhyC[:,:,0]
                 PhyN = PhyN[:,:,0]
                 PhyChl = PhyChl[:,:,0]
@@ -7331,15 +7528,25 @@ class plot_maps_limfact:
                 DiaC = DiaC[:,:,0]
                 DiaN = DiaN[:,:,0]
                 DiaChl = DiaChl[:,:,0]
+                if cocco_path.is_file():
+                    CoccoC   = CoccoC[:,:,0]
+                    CoccoN   = CoccoN[:,:,0]
+                    CoccoChl = CoccoChl[:,:,0]
                 temp = temp[:,:,0]
                 PAR = PAR[:,:,0]
-
+                if Tfunction == 'New_functions':
+                    PhaeoC   = PhaeoC[:,:,0]
+                    PhaeoN   = PhaeoN[:,:,0]
+                    PhaeoChl = PhaeoChl[:,:,0]
                 print(np.shape(DIN))
 
                 for m in range(0,12):
-                    DIN2D = DIN[m,:]
-                    DSi2D = DSi[m,:]
-                    DFe2D = DFe[m,:]
+                    DIN2D  = DIN[m,:]
+                    DSi2D  = DSi[m,:]
+                    DFe2D  = DFe[m,:]
+                    HCO32D = HCO3[m,:]
+                    CO22D  = CO2[m,:]
+                    pH2D   = pH[m,:]
                     phyc2D = PhyC[m,:]
                     phyn2D = PhyN[m,:]
                     phychl2D = PhyChl[m,:]
@@ -7347,17 +7554,16 @@ class plot_maps_limfact:
                     dian2D = DiaN[m,:]
                     diasi2D = DiaSi[m,:]
                     diachl2D = DiaChl[m,:]
+                    if cocco_path.is_file():
+                        coccoc2D = CoccoC[m,:]
+                        coccon2D = CoccoN[m,:]
+                        coccochl2D = CoccoChl[m,:]
                     par2d = PAR[m,:]
                     T2d = temp[m,:]
-
-                    # For every month in every year, the limitation is calculated
-                    Nlimphy[m,:]  = DIN2D/(DIN2D+0.55)
-                    Nlimdia[m,:]  = DIN2D/(DIN2D+1.0)
-
-                    Silim[m,:]    = DSi2D/(DSi2D+4.0)
-
-                    Felimphy[m,:] = DFe2D/(DFe2D+0.04)
-                    Felimdia[m,:] = DFe2D/(DFe2D+0.12)
+                    if Tfunction == 'New_functions':
+                        phaeoc2D = PhaeoC[m,:]
+                        phaeon2D = PhaeoN[m,:]
+                        phaeochl2D = PhaeoChl[m,:]
 
                     # Quotas
                     phychl2c = phychl2D/phyc2D 
@@ -7365,160 +7571,267 @@ class plot_maps_limfact:
                     diachl2c = diachl2D/diac2D
                     dian2c   = dian2D/diac2D
                     diasi2c  = diasi2D/diac2D
+                    
+                    if cocco_path.is_file():
+                        coccochl2c = coccochl2D/coccoc2D
+                        coccon2c   = coccon2D/coccoc2D
 
-                    # Temperature dependece
-                    T2d = 1./(T2d + C2K)
-                    T2d = np.exp( -Ae * (T2d - rTref));
+                    if Tfunction == 'New_functions':
+                        phaeochl2c = phaeochl2D/phaeoc2D
+                        phaeon2c   = phaeon2D/phaeoc2D
+
+                    # Temperature dependence
+                    if Tfunction == 'Arrhenius':
+                        T2d_loc = 1./(T2d + C2K)
+                        T_phy   = np.exp( -Ae * (T2d_loc - rTref))
+                        T_dia   = np.exp( -Ae * (T2d_loc - rTref))
+                        
+                        if cocco_path.is_file():
+                            T_cocco = max(0.1419 * T2d**0.8151,1e-15)
+                            
+                    if Tfunction == 'New_functions':
+                        T_phy   = np.exp(base_phy + exp_phy * T2d)
+                        T_dia   = np.exp(base_dia + exp_dia * T2d)
+                        T_cocco = np.exp(base_cocco + exp_cocco * T2d)
+                        T_phaeo = np.exp(base_phaeo + exp_phaeo * T2d)
+                        
 
                     # Nutrient growth limitation
-                    Phy_dq              = NCmin - phyn2c
-                    Phy_recom_limiter   = 1.0 - np.exp( -NMinSlope*( abs(Phy_dq)-Phy_dq )**2)
+                    Phy_dq[m,:]              = NCmin - phyn2c
+                    Phy_recom_limiter[m,:]   = 1.0 - np.exp( -NMinSlope*( abs(Phy_dq[m,:])-Phy_dq[m,:] )**2)
 
-                    Dia_dq              = NCmin - dian2c
-                    Dia_recom_limiterN  = 1.0 - np.exp( -NMinSlope*( abs(Dia_dq)-Dia_dq )**2)
-                    Dia_dq              = SiCmin - diasi2c;
-                    Dia_recom_limiterSi = 1.0 - np.exp( -SiMinSlope*( abs(Dia_dq)-Dia_dq )**2)
+                    Dia_dq[m,:]              = NCmin - dian2c
+                    Dia_recom_limiterN[m,:]  = 1.0 - np.exp( -NMinSlope*( abs(Dia_dq[m,:])-Dia_dq[m,:] )**2)
+                    Dia_dq[m,:]              = SiCmin - diasi2c;
+                    Dia_recom_limiterSi[m,:] = 1.0 - np.exp( -SiMinSlope*( abs(Dia_dq[m,:])-Dia_dq[m,:] )**2)
+                    
+                    if cocco_path.is_file():
+                        Cocco_dq[m,:]              = NCmin - coccon2c
+                        Cocco_recom_limiter[m,:]   = 1.0 - np.exp( -NMinSlope*( abs(Cocco_dq[m,:])-Cocco_dq[m,:] )**2)
+                        
+                    if Tfunction == 'New_functions':
+                        Phaeo_dq[m,:]              = NCmin - phaeon2c
+                        Phaeo_recom_limiter[m,:]   = 1.0 - np.exp( -NMinSlope*( abs(Phaeo_dq[m,:])-Phaeo_dq[m,:] )**2)
+                    
 
-                    # Most limiting factor 
-                    Fephy       = DFe2D/(DFe2D+0.02)
-                    Phy_qlimFac = np.column_stack((Phy_recom_limiter,Fephy))
-                    Phy_qlimFac = Phy_qlimFac.min(axis=1)
+                    # Most limiting nutrient 
+                    Fephy[m,:]        = DFe2D/(DFe2D+k_fe_phy)
+                    Phy_qlimFac1[m,:] = np.column_stack((Phy_recom_limiter[m,:],Fephy[m,:]))
+                    Phy_qlimFac[m,:]  = Phy_qlimFac1[m,:].min(axis=1)
 
-                    Fedia       = DFe2D/(DFe2D+0.12)
-                    Dia_qlimFac = np.column_stack((Dia_recom_limiterN,Dia_recom_limiterSi,Fedia))
-                    Dia_qlimFac = Dia_qlimFac.min(axis=1)
-
+                    Fedia[m,:]        = DFe2D/(DFe2D+k_fe_dia)
+                    Dia_qlimFac1[m,:] = np.column_stack((Dia_recom_limiterN[m,:],Dia_recom_limiterSi[m,:],Fedia[m,:]))
+                    Dia_qlimFac[m,:]  = Dia_qlimFac1[m,:].min(axis=1)
+                    
+                    if cocco_path.is_file():
+                        Fecocco[m,:]        = DFe2D/(DFe2D+k_fe_cocco)
+                        Cocco_qlimFac1[m,:] = np.column_stack((Cocco_recom_limiter[m,:],Fecocco[m,:]))
+                        Cocco_qlimFac[m,:]  = Cocco_qlimFac1[m,:].min(axis=1)
+                        
+                    if Tfunction == 'New_functions':
+                        Fephaeo[m,:]        = DFe2D/(DFe2D+k_fe_phaeo)
+                        Phaeo_qlimFac1[m,:] = np.column_stack((Phaeo_recom_limiter[m,:],Fephaeo[m,:]))
+                        Phaeo_qlimFac[m,:]  = Phaeo_qlimFac1[m,:].min(axis=1)
+                        
                     # pmax
-                    Pmax_phy = Pcm * Phy_qlimFac * T2d
-                    Pmax_dia = Pcm_d * Dia_qlimFac * T2d
+                    if Tfunction == 'Arrhenius':
+                        Pmax_phy[m,:] = Pcm * T_phy * Phy_qlimFac[m,:] 
+                        Pmax_dia[m,:] = Pcm_d * T_dia * Dia_qlimFac[m,:]
+                        
+                        if cocco_path.is_file():
+                            Pmax_cocco[m,:] = Pcm_c * T_cocco * Cocco_qlimFac[m,:]
+                            
+                    elif Tfunction == 'New_functions':
+                        Pmax_phy[m,:]   = T_phy * Phy_qlimFac[m,:] 
+                        Pmax_dia[m,:]   = T_dia * Dia_qlimFac[m,:]
+                        Pmax_cocco[m,:] = T_cocco * Cocco_qlimFac[m,:]
+                        Pmax_phaeo[m,:] = T_phaeo * Phaeo_qlimFac[m,:]
 
-                    Phy_Light_limiter[m,:] = 1 - np.exp((-alfa_phy * phychl2c * par2d)/Pmax_phy)
-                    Dia_Light_limiter[m,:] = 1 - np.exp((-alfa_dia * diachl2c * par2d)/Pmax_dia)
-
-                    #tracer = [t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12]
-
+                    # Light limitation
+                    Phy_Light_limiter = 1 - np.exp((-alfa_phy * phychl2c * par2d)/Pmax_phy)
+                    Dia_Light_limiter = 1 - np.exp((-alfa_dia * diachl2c * par2d)/Pmax_dia)
+                    if cocco_path.is_file():
+                        Cocco_Light_limiter = 1 - np.exp((-alfa_cocco * coccochl2c * par2d)/Pmax_cocco)
+                    if Tfunction == 'New_functions':
+                        Phaeo_Light_limiter = 1 - np.exp((-alfa_phaeo * phaeochl2c * par2d)/Pmax_phaeo)
+                                                
+                    # Carbonate system limitation
+                    Phy_CO2_limiter[m,:] = a_co2_phy * HCO32D * Cunits / (b_co2_phy + HCO32D * Cunits) - np.exp(-c_co2_phy * CO22D * Cunits) - d_co2_phy * 10.**(-pH2D)
+                    Phy_CO2_limiter[m,:] = np.clip(Phy_CO2_limiter[m,:], 0.0, 3.0)                                                             
+                    
+                    Dia_CO2_limiter[m,:] = a_co2_dia * HCO32D * Cunits / (b_co2_dia + HCO32D * Cunits) - np.exp(-c_co2_dia * CO22D * Cunits) - d_co2_dia * 10.**(-pH2D)
+                    Dia_CO2_limiter[m,:] = np.clip(Dia_CO2_limiter[m,:], 0.0, 3.0)                                                              
+                    
+                    if cocco_path.is_file():
+                        Cocco_CO2_limiter[m,:] = a_co2_cocco * HCO32D * Cunits / (b_co2_cocco + HCO32D * Cunits) - np.exp(-c_co2_cocco * CO22D * Cunits) - d_co2_cocco * 10.**(-pH2D)
+                        Cocco_CO2_limiter[m,:] = np.clip(Cocco_CO2_limiter[m,:], 0.0, 3.0)                                                             
+                        
+                    if Tfunction == 'New_functions':
+                        Phaeo_CO2_limiter[m,:] = a_co2_phaeo * HCO32D * Cunits / (b_co2_phaeo + HCO32D * Cunits) - np.exp(-c_co2_phaeo * CO22D * Cunits) - d_co2_phaeo * 10.**(-pH2D)
+                        Phaeo_CO2_limiter[m,:] = np.clip(Phaeo_CO2_limiter[m,:], 0.0, 3.0)                                                                
+                        
+                        
                     # Most limiting factors found for nano
-                    # 0 = Fe, 1 = DIN, 2 = Light
-                    lim=np.column_stack((Felimphy[m,:],Nlimphy[m,:],Phy_Light_limiter[m,:]))
-                    limphy1=lim.argmin(axis=1)
+                    # 1 = Fe, 2 = DIN, 3 = Light
+                    lim_phy=np.column_stack((Fephy[m,:],Phy_recom_limiter[m,:],Phy_Light_limiter[m,:],Phy_CO2_limiter[m,:]))
+                    #limphy1=lim.argmin(axis=1)
+                    months_limphy[m, :] = np.choose(lim_phy.argmin(axis=1), [1, 2, 4, 5])
 
                     # Most limiting factors found for dia
-                    # 0 = Fe, 1 = DIN, 2 = DSi, 3 = Light
-                    lim=np.column_stack((Felimdia[m,:],Nlimdia[m,:],Silim[m,:],Dia_Light_limiter[m,:]))
-                    limdia1=lim.argmin(axis=1)
+                    # 1 = Fe, 2 = DIN, 3 = DSi, 4 = Light, 5 = CO2
+                    lim_dia=np.column_stack((Fedia[m,:],Dia_recom_limiterN[m,:],Dia_recom_limiterSi[m,:],Dia_Light_limiter[m,:],Dia_CO2_limiter[m,:]))
+                    #limdia1=lim.argmin(axis=1)
+                    months_limdia[m, :] = np.choose(lim_dia.argmin(axis=1), [1, 2, 3, 4, 5])
                     
-                    limphy1 = (np.array(limphy1, dtype = float) + 1) # .astype('Float32')
-                    limdia1 = (np.array(limdia1, dtype = float) + 1) # .astype('Float32')
-                    
-                    if True:
-                        self.limphy = limphy1
-                        self.limdia   = limdia1
-        
-                    if self.plotting:
-                        fig = plt.figure(figsize=(8,10), constrained_layout=True)
-                        axes = fig.subplot_mosaic(
-                                    """
-                                    A
-                                    B
-                                    """,
-                                    gridspec_kw={'hspace': 0.01, 'wspace': 0.01}, 
-                                    subplot_kw=dict(projection=self.mapproj))
-                        fig.get_layout_engine().set(w_pad=0.2)
+                    if cocco_path.is_file():
+                    # Most limiting factors found for cocco
+                    # 1= Fe, 2 = DIN, 4 = Light, 5 = CO2
+                        lim_cocco=np.column_stack((Fecocco[m,:],Cocco_recom_limiter[m,:],Cocco_Light_limiter[m,:],Cocco_CO2_limiter[m,:]))
+                        #limcocco1=lim.argmin(axis=1)
+                        months_limcocco[m, :] = np.choose(lim_cocco.argmin(axis=1), [1, 2, 4, 5])
                         
-                        m1 = axes['A']
-                        levels = np.arange(0,25,1)
-                        f1 = pf.subplot(mesh, fig, m1, self.limdia,
-                                    levels = np.arange(0.5,3.5,1),
-                                    units='', 
-                                    mapproj=self.mapproj, # robinson projection takes more time!
-                                    cmap = self.cmap,
-                                    cmap_extension='neither',
-                                    titles='Diatoms limiting factor',
-                                    box = box,
-                                   )
+                    if Tfunction == 'New_functions':
+                    # Most limiting factors found for Phaeo
+                    # 1 = Fe, 2 = DIN, 4 = Light, 5 = CO2
+                        lim_phaeo=np.column_stack((Fephaeo[m,:],Phaeo_recom_limiter[m,:],Phaeo_Light_limiter[m,:],Phaeo_CO2_limiter[m,:]))
+                        #limphaeo1=lim.argmin(axis=1)
+                        months_limphaeo[m, :] = np.choose(lim_phaeo.argmin(axis=1), [1, 2, 4, 5])
+                    
+                    
+                if self.plotting:
+                    pfts_to_plot = [
+                        ('Diatoms', months_limdia),
+                        ('Small Phytoplankton', months_limphy)
+                    ]
+                    if cocco_path.is_file():
+                        pfts_to_plot.append(('Coccolithophore', months_limcocco))
+                    if Tfunction == 'New_functions':
+                        pfts_to_plot.append(('Polar Phaeocystis', months_limphaeo))
 
-                        m2 = axes['B']
-                        f2 = pf.subplot(mesh, fig, m2, self.limphy, 
-                                    levels = np.arange(0.5,3.5,1),
-                                    units='', 
-                                    mapproj=self.mapproj, # robinson projection takes more time!
-                                    cmap = self.cmap,
-                                    cmap_extension='neither',
-                                    titles='Small phytoplankton limiting factor',
-                                    boz = box,
-                                   )
-                        m1.text(-0.12, 1.05, 'A', transform=m1.transAxes,
-                                    size=30, weight='bold')
-                        m2.text(-0.12, 1.05, 'B', transform=m2.transAxes,
-                                    size=30, weight='bold')
-            
-                        fig.subplots_adjust(bottom=0.1)
-                        cbar1_ax = fig.add_axes([0.2, 0.06, 0.6, 0.02])
-                        cbar1 = fig.colorbar(f2,
-                                        cax = cbar1_ax, 
-                                        orientation = 'horizontal',
-                                        fraction=0.046, pad=0.04, ticks=[1,2]) 
-                        #cbar1.set_label('Limiting Factor', fontsize=18)
-                        cbar1.ax.tick_params(labelsize=18)
-                        cbar1.ax.set_xticklabels(['Nutrients', 'Ligth'])  
+                    month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+                    levels = np.arange(0.5, 6.5, 1) 
+
+                    for pft_name, pft_data in pfts_to_plot:
+                        fig, axes = plt.subplots(3, 4, figsize=(16, 12), 
+                                                 subplot_kw=dict(projection=self.mapproj),
+                                                 constrained_layout=True)
+
+                        axes_flat = axes.flatten()
+                        last_f = None
+
+                        for m in range(12):
+                            ax = axes_flat[m]
+                            last_f = pf.subplot(mesh, fig, ax, pft_data[m, :], 
+                                                levels=levels,
+                                                units='',  
+                                                mapproj=self.mapproj, 
+                                                cmap=self.cmap,
+                                                cmap_extension='neither',
+                                                titles=month_names[m],
+                                                box=box)
+
+                        fig.suptitle(f'{pft_name} Limiting Factors', fontsize=22, weight='bold')
+
+                        cbar_ax = fig.add_axes([0.15, 0.05, 0.7, 0.03])
+                        cbar = fig.colorbar(last_f, cax=cbar_ax, orientation='horizontal', ticks=[1, 2, 3, 4, 5])
+                        cbar.ax.tick_params(labelsize=14)
+                        cbar.ax.set_xticklabels(['Iron (Fe)', 'DIN', 'DSi (Silicate)', 'Light', 'CO2'])
+
+                        fig.subplots_adjust(bottom=0.12)
+                        
                     
                         # fig export  -------------------------------------------------------------------------------------
                         if(self.savefig==True):                
-                            plt.savefig(self.savepath+self.runname+'_'+'LIMFact'+'_'+str(years[0])+'to'+str(years[-1])+'.png', 
+                            plt.savefig(self.savepath+self.runname+'_'+'LIMFact_monthly'+'_'+str(years[0])+'to'+str(years[-1])+'.png', 
                                     dpi = 300, bbox_inches='tight')
-                            plt.savefig(self.savepath+self.runname+'_'+'LIMFact'+'_'+str(years[0])+'to'+str(years[-1])+'.pdf', 
+                            plt.savefig(self.savepath+self.runname+'_'+'LIMFact_monthly'+'_'+str(years[0])+'to'+str(years[-1])+'.pdf', 
                                     bbox_inches='tight')
                         plt.show(block=False)
                     
-            elif frequency == 'yearly':
+        elif frequency == 'yearly':
                     print('yearly frequency selected')
-                    Felimphy          = np.zeros(shape=(len(mesh.x2)))
-                    Felimdia          = np.zeros(shape=(len(mesh.x2)))
-                    Nlimphy           = np.zeros(shape=(len(mesh.x2)))
-                    Nlimdia           = np.zeros(shape=(len(mesh.x2)))
-                    Silim             = np.zeros(shape=(len(mesh.x2)))
                     Phy_Light_limiter = np.zeros(shape=(len(mesh.x2)))
                     Dia_Light_limiter = np.zeros(shape=(len(mesh.x2)))
+                    if cocco_path.is_file():
+                        Cocco_Light_limiter = np.zeros(shape=(len(mesh.x2)))
+                    if Tfunction == 'New_functions':
+                        Phaeo_Light_limiter = np.zeros(shape=(len(mesh.x2)))
 
-                    DIN = pf.get_data(self.resultpath, "DIN", year, mesh, 
+                    DIN = pf.get_data(self.resultpath, "DIN", years, mesh, 
                                        how="mean", compute=True, runid=self.runname, silent=True)
 
-                    DSi = pf.get_data(self.resultpath, "DSi", year, mesh, 
+                    DSi = pf.get_data(self.resultpath, "DSi", years, mesh, 
                                        how="mean", compute=True, runid=self.runname, silent=True)
 
-                    DFe = pf.get_data(self.resultpath, "DFe", year, mesh, 
+                    DFe = pf.get_data(self.resultpath, "DFe", years, mesh, 
+                                       how="mean", compute=True, runid=self.runname, silent=True)
+                    
+                    HCO3 = pf.get_data(self.resultpath, "HCO3", years, mesh, 
+                                       how="mean", compute=True, runid=self.runname, silent=True)
+                    
+                    CO2 = pf.get_data(self.resultpath, "CO2", years, mesh, 
+                                       how="mean", compute=True, runid=self.runname, silent=True)
+                    
+                    pH = pf.get_data(self.resultpath, "pH", years, mesh, 
                                        how="mean", compute=True, runid=self.runname, silent=True)
 
-                    PhyC = pf.get_data(self.resultpath, "PhyC", year, mesh, 
+                    PhyC = pf.get_data(self.resultpath, "PhyC", years, mesh, 
                                        how="mean", compute=True, runid=self.runname, silent=True)
 
-                    PhyN = pf.get_data(self.resultpath, "PhyN", year, mesh, 
+                    PhyN = pf.get_data(self.resultpath, "PhyN", years, mesh, 
                                        how="mean", compute=True, runid=self.runname, silent=True)
 
-                    PhyChl = pf.get_data(self.resultpath, "PhyChl", year, mesh, 
+                    PhyChl = pf.get_data(self.resultpath, "PhyChl", years, mesh, 
                                        how="mean", compute=True, runid=self.runname, silent=True)
 
-                    DiaSi = pf.get_data(self.resultpath, "DiaSi", year, mesh, 
+                    DiaSi = pf.get_data(self.resultpath, "DiaSi", years, mesh, 
                                        how="mean", compute=True, runid=self.runname, silent=True)
 
-                    DiaC = pf.get_data(self.resultpath, "DiaC", year, mesh, 
+                    DiaC = pf.get_data(self.resultpath, "DiaC", years, mesh, 
                                        how="mean", compute=True, runid=self.runname, silent=True)
 
-                    DiaN = pf.get_data(self.resultpath, "DiaN", year, mesh, 
+                    DiaN = pf.get_data(self.resultpath, "DiaN", years, mesh, 
                                        how="mean", compute=True, runid=self.runname, silent=True)
 
-                    DiaChl = pf.get_data(self.resultpath, "DiaChl", year, mesh, 
+                    DiaChl = pf.get_data(self.resultpath, "DiaChl", years, mesh, 
+                                       how="mean", compute=True, runid=self.runname, silent=True)
+                    
+                    if cocco_path.is_file():
+                    
+                        CoccoC = pf.get_data(self.resultpath, "CoccoC", years, mesh, 
                                        how="mean", compute=True, runid=self.runname, silent=True)
 
-                    temp = pf.get_data(self.resultpath, "temp", year, mesh, 
+                        CoccoN = pf.get_data(self.resultpath, "CoccoN", years, mesh, 
                                        how="mean", compute=True, runid=self.runname, silent=True)
 
-                    PAR = pf.get_data(self.resultpath, "PAR", year, mesh, 
+                        CoccoChl = pf.get_data(self.resultpath, "CoccoChl", years, mesh, 
                                        how="mean", compute=True, runid=self.runname, silent=True)
 
-                    DIN2D = DIN[:,0]
-                    DSi2D = DSi[:,0]
-                    DFe2D = DFe[:,0]
+                    temp = pf.get_data(self.resultpath, "temp", years, mesh, 
+                                       how="mean", compute=True, runid=self.runname, silent=True)
+
+                    PAR = pf.get_data(self.resultpath, "PAR", years, mesh, 
+                                       how="mean", compute=True, runid=self.runname, silent=True)
+                    
+                    if Tfunction == 'New_functions':
+
+                        PhaeoC = pf.get_data(self.resultpath, "PhaeoC", years, mesh, 
+                                       how="mean", compute=True, runid=self.runname, silent=True)
+
+                        PhaeoN = pf.get_data(self.resultpath, "PhaeoN", years, mesh, 
+                                       how="mean", compute=True, runid=self.runname, silent=True)
+
+                        PhaeoChl = pf.get_data(self.resultpath, "PhaeoChl", years, mesh, 
+                                       how="mean", compute=True, runid=self.runname, silent=True)
+
+
+                    DIN2D  = DIN[:,0]
+                    DSi2D  = DSi[:,0]
+                    DFe2D  = DFe[:,0]
+                    HCO32D = HCO3[:,0]
+                    CO22D  = CO2[:,0]
+                    pH2D   = pH[:,0]
                     phyc2D = PhyC[:,0]
                     phyn2D = PhyN[:,0]
                     phychl2D = PhyChl[:,0]
@@ -7526,17 +7839,17 @@ class plot_maps_limfact:
                     diac2D = DiaC[:,0]
                     dian2D = DiaN[:,0]
                     diachl2D = DiaChl[:,0]
+                    if cocco_path.is_file():
+                        coccoc2D = CoccoC[:,0]
+                        coccon2D = CoccoN[:,0]
+                        coccochl2D = CoccoChl[:,0]
                     T2d = temp[:,0]
                     par2d = PAR[:,0]
+                    if Tfunction == 'New_functions':
+                        phaeoc2D = PhaeoC[:,0]
+                        phaeon2D = PhaeoN[:,0]
+                        phaeochl2D = PhaeoChl[:,0]
 
-                    # For every month in every year, the limitation is calculated
-                    Nlimphy  = DIN2D/(DIN2D+0.55)
-                    Nlimdia  = DIN2D/(DIN2D+1.0)
-
-                    Silim    = DSi2D/(DSi2D+4.0)
-
-                    Felimphy = DFe2D/(DFe2D+0.02)
-                    Felimdia = DFe2D/(DFe2D+0.12)
 
                     # Quotas
                     phychl2c = phychl2D/phyc2D 
@@ -7544,10 +7857,29 @@ class plot_maps_limfact:
                     diachl2c = diachl2D/diac2D
                     dian2c   = dian2D/diac2D
                     diasi2c  = diasi2D/diac2D
+                    
+                    if cocco_path.is_file():
+                        coccochl2c = coccochl2D/coccoc2D
+                        coccon2c   = coccon2D/coccoc2D
 
-                    # Temperature dependece
-                    T2d = 1./(T2d + C2K)
-                    T2d = np.exp( -Ae * (T2d - rTref));
+                    if Tfunction == 'New_functions':
+                        phaeochl2c = phaeochl2D/phaeoc2D
+                        phaeon2c   = phaeon2D/phaeoc2D
+
+                    # Temperature dependence
+                    if Tfunction == 'Arrhenius':
+                        T2d_loc = 1./(T2d + C2K)
+                        T_phy   = np.exp( -Ae * (T2d_loc - rTref))
+                        T_dia   = np.exp( -Ae * (T2d_loc - rTref))
+                        
+                        if cocco_path.is_file():
+                            T_cocco = max(0.1419 * T2d**0.8151,1e-15)
+                            
+                    if Tfunction == 'New_functions':
+                        T_phy   = np.exp(base_phy + exp_phy * T2d)
+                        T_dia   = np.exp(base_dia + exp_dia * T2d)
+                        T_cocco = np.exp(base_cocco + exp_cocco * T2d)
+                        T_phaeo = np.exp(base_phaeo + exp_phaeo * T2d)
 
                     # Nutrient growth limitation
                     Phy_dq              = NCmin - phyn2c
@@ -7557,67 +7889,152 @@ class plot_maps_limfact:
                     Dia_recom_limiterN  = 1.0 - np.exp( -NMinSlope*( abs(Dia_dq)-Dia_dq )**2)
                     Dia_dq              = SiCmin - diasi2c;
                     Dia_recom_limiterSi = 1.0 - np.exp( -SiMinSlope*( abs(Dia_dq)-Dia_dq )**2)
-
-                    # Most limiting factor 
-                    Fephy       = DFe2D/(DFe2D+0.02)
+                    
+                    if cocco_path.is_file():
+                        Cocco_dq              = NCmin - coccon2c
+                        Cocco_recom_limiter   = 1.0 - np.exp( -NMinSlope*( abs(Cocco_dq)-Cocco_dq )**2)
+                        
+                    if Tfunction == 'New_functions':
+                        Phaeo_dq              = NCmin - phaeon2c
+                        Phaeo_recom_limiter   = 1.0 - np.exp( -NMinSlope*( abs(Phaeo_dq)-Phaeo_dq )**2)
+                
+                    
+                    # Most limiting nutrient 
+                    Fephy       = DFe2D/(DFe2D+k_fe_phy)
                     Phy_qlimFac = np.column_stack((Phy_recom_limiter,Fephy))
                     Phy_qlimFac = Phy_qlimFac.min(axis=1)
 
-                    Fedia       = DFe2D/(DFe2D+0.12)
+                    Fedia       = DFe2D/(DFe2D+k_fe_dia)
                     Dia_qlimFac = np.column_stack((Dia_recom_limiterN,Dia_recom_limiterSi,Fedia))
                     Dia_qlimFac = Dia_qlimFac.min(axis=1)
-
+                    
+                    if cocco_path.is_file():
+                        Fecocco       = DFe2D/(DFe2D+k_fe_cocco)
+                        Cocco_qlimFac = np.column_stack((Cocco_recom_limiter,Fecocco))
+                        Cocco_qlimFac = Cocco_qlimFac.min(axis=1)
+                        
+                    if Tfunction == 'New_functions':
+                        Fephaeo       = DFe2D/(DFe2D+k_fe_phaeo)
+                        Phaeo_qlimFac = np.column_stack((Phaeo_recom_limiter,Fephaeo))
+                        Phaeo_qlimFac = Phaeo_qlimFac.min(axis=1)
+                        
                     # pmax
-                    Pmax_phy = Pcm * Phy_qlimFac * T2d
-                    Pmax_dia = Pcm * Dia_qlimFac * T2d
+                    if Tfunction == 'Arrhenius':
+                        Pmax_phy = Pcm * T_phy * Phy_qlimFac 
+                        Pmax_dia = Pcm_d * T_dia * Dia_qlimFac
+                        
+                        if cocco_path.is_file():
+                            Pmax_cocco = Pcm_c * T_cocco * Cocco_qlimFac
+                            
+                    elif Tfunction == 'New_functions':
+                        Pmax_phy   = T_phy * Phy_qlimFac 
+                        Pmax_dia   = T_dia * Dia_qlimFac
+                        Pmax_cocco = T_cocco * Cocco_qlimFac
+                        Pmax_phaeo = T_phaeo * Phaeo_qlimFac
 
+                    # Light limitation
                     Phy_Light_limiter = 1 - np.exp((-alfa_phy * phychl2c * par2d)/Pmax_phy)
                     Dia_Light_limiter = 1 - np.exp((-alfa_dia * diachl2c * par2d)/Pmax_dia)
-
-
+                    if cocco_path.is_file():
+                        Cocco_Light_limiter = 1 - np.exp((-alfa_cocco * coccochl2c * par2d)/Pmax_cocco)
+                    if Tfunction == 'New_functions':
+                        Phaeo_Light_limiter = 1 - np.exp((-alfa_phaeo * phaeochl2c * par2d)/Pmax_phaeo)
+                    
+                    
+                    # Carbonate system limitation
+                    Phy_CO2_limiter = a_co2_phy * HCO32D * Cunits / (b_co2_phy + HCO32D * Cunits) - np.exp(-c_co2_phy * CO22D * Cunits) - d_co2_phy * 10.**(-pH2D)
+                    Phy_CO2_limiter = np.clip(Phy_CO2_limiter, 0.0, 3.0)                                                            
+                    
+                    Dia_CO2_limiter = a_co2_dia * HCO32D * Cunits / (b_co2_dia + HCO32D * Cunits) - np.exp(-c_co2_dia * CO22D * Cunits) - d_co2_dia * 10.**(-pH2D)
+                    Dia_CO2_limiter = np.clip(Dia_CO2_limiter, 0.0, 3.0)                                                                
+                    
+                    if cocco_path.is_file():
+                        Cocco_CO2_limiter = a_co2_cocco * HCO32D * Cunits / (b_co2_cocco + HCO32D * Cunits) - np.exp(-c_co2_cocco * CO22D * Cunits) - d_co2_cocco * 10.**(-pH2D)
+                        Cocco_CO2_limiter = np.clip(Cocco_CO2_limiter, 0.0, 3.0)                                                              
+                        
+                    if Tfunction == 'New_functions':
+                        Phaeo_CO2_limiter = a_co2_phaeo * HCO32D * Cunits / (b_co2_phaeo + HCO32D * Cunits) - np.exp(-c_co2_phaeo * CO22D * Cunits) - d_co2_phaeo * 10.**(-pH2D)
+                        Phaeo_CO2_limiter = np.clip(Phaeo_CO2_limiter, 0.0, 3.0)                                                             
+  
+                    
                     # Most limiting factors found for nano
                     # 0 = Fe, 1 = DIN, 2 = Light
-                    lim=np.column_stack((Felimphy,Nlimphy,Phy_Light_limiter))
+                    lim=np.column_stack((Fephy,Phy_recom_limiter,Phy_Light_limiter,Phy_CO2_limiter))
                     limphy1=lim.argmin(axis=1)
 
                     # Most limiting factors found for dia
                     # 0 = Fe, 1 = DIN, 2 = DSi, 3 = Light
-                    lim=np.column_stack((Felimdia,Nlimdia,Silim,Dia_Light_limiter))
+                    lim=np.column_stack((Fedia,Dia_recom_limiterN,Dia_recom_limiterSi,Dia_Light_limiter,Dia_CO2_limiter))
                     limdia1=lim.argmin(axis=1)
+                    
+                    if cocco_path.is_file():
+                    # Most limiting factors found for cocco
+                    # 0 = Fe, 1 = DIN, 2 = Light
+                        lim=np.column_stack((Fecocco,Cocco_recom_limiter,Cocco_Light_limiter,Cocco_CO2_limiter))
+                        limcocco1=lim.argmin(axis=1)
+                        
+                    if Tfunction == 'New_functions':
+                    # Most limiting factors found for Phaeo
+                    # 0 = Fe, 1 = DIN, 2 = Light
+                        lim=np.column_stack((Fephaeo,Phaeo_recom_limiter,Phaeo_Light_limiter,Phaeo_CO2_limiter))
+                        limphaeo1=lim.argmin(axis=1)
+                    
                     
                     limphy1 = (np.array(limphy1, dtype = float) + 1) # .astype('Float32')
                     limdia1 = (np.array(limdia1, dtype = float) + 1) # .astype('Float32')
+                    if cocco_path.is_file():
+                        limcocco1 = (np.array(limcocco1, dtype = float) + 1) # .astype('Float32')
+                    if Tfunction == 'New_functions':
+                        limphaeo1 = (np.array(limphaeo1, dtype = float) + 1) # .astype('Float32')
+        
                     
                     # Find where none is limiting for hatching (>0.5)
                     nolimphy = np.random.rand(*np.shape(limphy1))
                     nolimdia = np.random.rand(*np.shape(limdia1))
                     
-                    nolimphy[np.where((Felimphy > 0.5) & (Nlimphy > 0.5) & (Phy_Light_limiter > 0.5))] = -1
-                    nolimdia[np.where((Felimdia > 0.5) & (Nlimdia > 0.5) & (Silim > 0.5) & (Dia_Light_limiter > 0.5))] = -1
+                    nolimphy[np.where((Fephy > 0.5) & (Phy_recom_limiter > 0.5) & (Phy_Light_limiter > 0.5) & (Phy_CO2_limiter > 0.5))] = -1
+                    nolimdia[np.where((Fedia > 0.5) & (Dia_recom_limiterN > 0.5) & (Dia_recom_limiterSi > 0.5) & (Dia_Light_limiter > 0.5) & (Dia_CO2_limiter > 0.5))] = -1
                     
+                    if cocco_path.is_file():
+                        nolimcocco = np.random.rand(*np.shape(limcocco1))
+                        nolimcocco[np.where((Fecocco > 0.5) & (Cocco_recom_limiter > 0.5) & (Cocco_Light_limiter > 0.5) & (Cocco_CO2_limiter > 0.5))] = -1
+                        
+                    if Tfunction == 'New_functions':
+                        nolimphaeo = np.random.rand(*np.shape(limphaeo1))
+                        nolimphaeo[np.where((Fephaeo > 0.5) & (Phaeo_recom_limiter > 0.5) & (Phaeo_Light_limiter > 0.5) & (Phaeo_CO2_limiter > 0.5))] = -1
+                    
+                    # Plotting
                     if True:
                         self.limphy = limphy1
                         self.limdia   = limdia1
                         self.nolimdia = nolimdia
-                        self.Felimphy = Felimphy
-                        self.Nlimphy = Nlimphy
                         self.Phy_Light_limiter = Phy_Light_limiter
+                        if cocco_path.is_file():
+                            self.limcocco   = limcocco1
+                        if Tfunction == 'New_functions':
+                            self.limphaeo   = limphaeo1
+                        
         
-                    if self.plotting:
-                        fig = plt.figure(figsize=(8,10), constrained_layout=True)
+                    if self.plotting:    
+                        plots = ["A", "B"]
+                        if cocco_path.is_file():
+                            plots.append("C")
+                        if Tfunction == 'New_functions':
+                            plots.append("D")
+                        mosaic_layout = "\n".join(plots)
+                    
+                        fig = plt.figure(figsize=(8, 5 * len(plots)), constrained_layout=True)
                         axes = fig.subplot_mosaic(
-                                    """
-                                    A
-                                    B
-                                    """,
+                                    mosaic_layout,
                                     gridspec_kw={'hspace': 0.01, 'wspace': 0.01}, 
                                     subplot_kw=dict(projection=self.mapproj))
                         fig.get_layout_engine().set(w_pad=0.2)
                         
+                        
                         m1 = axes['A']
                         levels = np.arange(0,25,1)
                         f1 = pf.subplot(mesh, fig, m1, self.limdia,
-                                    levels = np.arange(0.5,5.5,1),
+                                    levels = np.arange(0.5,6.5,1),
                                     units='', 
                                     mapproj=self.mapproj, # robinson projection takes more time!
                                     cmap = self.cmap,
@@ -7628,18 +8045,19 @@ class plot_maps_limfact:
                         
                         f1a = pf.subhatch(mesh, fig, m1, nolimdia)
                         
-                        cbar0_ax = fig.add_axes([0.25, 0.54, 0.6, 0.02])
+                        #cbar0_ax = fig.add_axes([0.25, 0.54, 0.6, 0.02])
                         cbar0 = fig.colorbar(f1,
-                                        cax = cbar0_ax, 
+                                        #cax = cbar0_ax, 
+                                        ax=m1,
                                         orientation = 'horizontal',
-                                        fraction=0.046, pad=0.04, ticks=[1,2,3,4]) 
+                                        fraction=0.046, pad=0.04, ticks=[1,2,3,4,5]) 
                         #cbar0.set_label('Limiting Factor', fontsize=18)
                         cbar0.ax.tick_params(labelsize=18)
-                        cbar0.ax.set_xticklabels(['Fe', 'DIN', 'DSi', 'Light']) 
-
+                        cbar0.ax.set_xticklabels(['Fe', 'DIN', 'DSi', 'Light', 'CO2']) 
+                        
                         m2 = axes['B']
                         f2 = pf.subplot(mesh, fig, m2, self.limphy, 
-                                    levels = np.arange(0.5,4.5,1),
+                                    levels = np.arange(0.5,5.5,1),
                                     units='', 
                                     mapproj=self.mapproj, # robinson projection takes more time!
                                     cmap = self.cmap,
@@ -7650,20 +8068,86 @@ class plot_maps_limfact:
                         
                         f2a = pf.subhatch(mesh, fig, m2, nolimphy)
                         
+                        #cbar1_ax = fig.add_axes([0.25, 0.04, 0.6, 0.02])
+                        cbar1 = fig.colorbar(f2,
+                                        #cax = cbar1_ax, 
+                                        ax = m2, 
+                                        orientation = 'horizontal',
+                                        fraction=0.046, pad=0.04, ticks=[1,2,3,4]) 
+                        #cbar1.set_label('Limiting Factor', fontsize=18)
+                        cbar1.ax.tick_params(labelsize=18)
+                        cbar1.ax.set_xticklabels(['Fe', 'DIN', 'Light', 'CO2'])  
+                        
+                        if cocco_path.is_file():
+                            m3 = axes['C']
+                            f3 = pf.subplot(mesh, fig, m3, self.limcocco, 
+                                        levels = np.arange(0.5,5.5,1),
+                                        units='', 
+                                        mapproj=self.mapproj, # robinson projection takes more time!
+                                        cmap = self.cmap,
+                                        cmap_extension='neither',
+                                        titles='Coccolithophores limiting factor',
+                                        box = box,
+                                       )
+
+                            f3a = pf.subhatch(mesh, fig, m3, nolimcocco)
+                            
+                            #cbar3_ax = fig.add_axes([0.25, -0.46, 0.6, 0.02])
+                            cbar3 = fig.colorbar(f3,
+                                            #cax = cbar3_ax, 
+                                            ax = m3, 
+                                            orientation = 'horizontal',
+                                            fraction=0.046, pad=0.04, ticks=[1,2,3,4]) 
+                            #cbar1.set_label('Limiting Factor', fontsize=18)
+                            cbar3.ax.tick_params(labelsize=18)
+                            cbar3.ax.set_xticklabels(['Fe', 'DIN', 'Light', 'CO2'])  
+                        
+                        if Tfunction == 'New_functions':
+                            m4 = axes['D']
+                            f4 = pf.subplot(mesh, fig, m4, self.limphaeo, 
+                                        levels = np.arange(0.5,5.5,1),
+                                        units='', 
+                                        mapproj=self.mapproj, # robinson projection takes more time!
+                                        cmap = self.cmap,
+                                        cmap_extension='neither',
+                                        titles='Polar Phaeocystis limiting factor',
+                                        box = box,
+                                       )
+
+                            f4a = pf.subhatch(mesh, fig, m4, nolimphaeo)
+                            
+                            #cbar4_ax = fig.add_axes([0.25, -0.96, 0.6, 0.02])
+                            cbar4 = fig.colorbar(f4,
+                                            #cax = cbar4_ax, 
+                                            ax = m4, 
+                                            orientation = 'horizontal',
+                                            fraction=0.046, pad=0.04, ticks=[1,2,3,4]) 
+                            #cbar1.set_label('Limiting Factor', fontsize=18)
+                            cbar4.ax.tick_params(labelsize=18)
+                            cbar4.ax.set_xticklabels(['Fe', 'DIN', 'Light', 'CO2'])  
+                        
+                        
                         m1.text(-0.1, 1.05, 'A', transform=m1.transAxes,
                                     size=30, weight='bold')
                         m2.text(-0.1, 1.05, 'B', transform=m2.transAxes,
                                     size=30, weight='bold')
+                        if cocco_path.is_file():
+                            m3.text(-0.1, 1.05, 'C', transform=m3.transAxes,
+                                    size=30, weight='bold')
+                        if Tfunction == 'New_functions':
+                            m4.text(-0.1, 1.05, 'D', transform=m4.transAxes,
+                                    size=30, weight='bold')
+            
+                       # last_f = f2
+                       # if cocco_path.is_file():
+                       #     last_f = f3
+                       # if Tfunction == 'New_functions':
+                       #     last_f = f4
+                       # 
+                       # fig.subplots_adjust(bottom=0.2)
                         
-                        fig.subplots_adjust(bottom=0.2)
-                        cbar1_ax = fig.add_axes([0.25, 0.04, 0.6, 0.02])
-                        cbar1 = fig.colorbar(f2,
-                                        cax = cbar1_ax, 
-                                        orientation = 'horizontal',
-                                        fraction=0.046, pad=0.04, ticks=[1,2,3]) 
-                        #cbar1.set_label('Limiting Factor', fontsize=18)
-                        cbar1.ax.tick_params(labelsize=18)
-                        cbar1.ax.set_xticklabels(['Fe', 'DIN', 'Light'])  
+                        
+                            
                         
                         # fig export  -------------------------------------------------------------------------------------
                         if(self.savefig==True):                
@@ -7673,5 +8157,5 @@ class plot_maps_limfact:
                                     bbox_inches='tight')
                         plt.show(block=False)
                     
-            else:
+        else:
                 print('no frequency selected')

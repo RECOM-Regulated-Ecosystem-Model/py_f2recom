@@ -11,25 +11,6 @@ import numpy as np
 import skill_metrics as sm
 import matplotlib.pyplot as plt
 
-def get_seasonal_data(self, dataset, index):
-    seasonal_lat = []
-        
-    for month in self.months: 
-        seasonalData = dataset[month][:][:]
-            
-        if self.type == 'Chl': 
-            # suppress print statement from layermean fxn 
-            with io.StringIO() as buf, contextlib.redirect_stdout(buf):
-                # sum up Chl-a over depth:
-                data_depthmean = pf.layermean_data(seasonalData, self.mesh)
-
-            # separate Chl-a to given latitudes (via index) and take the mean over region:
-            seasonal_lat.append(pf.areamean_data(data_depthmean, self.mesh, mask=index))
-
-        elif self.type == 'NPP':
-            seasonal_lat.append(pf.areamean_data(seasonalData, self.mesh, mask=index))
-    return(seasonal_lat)
-
 # plot mesh nodal area overview 
 def plot_mesh_area(mesh, plot_globe = True, plot_poles=False, plot_zoom=False, levels=np.arange(0,10500,500)):
     '''check mesh setup nodal and area
@@ -112,7 +93,7 @@ def plot_taylor_norm(data_ref,data_pred,
                     
     if mask == True:
         # get statistics only from ocean gridpoints (where model data != 0)
-        ind_stat = np.where(data_pred != 0)
+        ind_stat = np.where(np.isfinite(data_pred != 0) & np.isfinite(data_ref != 0) & (data_pred != 0) & (data_ref != 0))
         taylor_stats1 = sm.taylor_statistics(data_pred[ind_stat],data_ref[ind_stat])
     else:
         taylor_stats1 = sm.taylor_statistics(data_pred,data_ref)
@@ -232,7 +213,7 @@ def plot_taylor_comp(data_ref,data_pred,mesh,
         data_pred_temp = data_pred[:,i]
         if mask == True:
             # get statistics only from ocean gridpoints (where model data != 0)
-            ind_stat = np.where(data_pred_temp != 0)
+            ind_stat = np.where(np.isfinite(data_pred_temp != 0) & np.isfinite(data_ref_temp != 0) & (data_pred_temp != 0) & (data_ref_temp != 0))
             taylor_stats1 = sm.taylor_statistics(data_pred_temp[ind_stat],data_ref_temp[ind_stat])
         else:
             taylor_stats1 = sm.taylor_statistics(data_pred_temp,data_ref_temp)

@@ -22,9 +22,13 @@ if socket.gethostname()[:5] == 'blogi':
     savepath = home+'/pyfesom2/codes/py_f2recom_develop/outputs/'+simu_name+'/'
     evalpath      = '/scratch/usr/hbkoziel/evaluation/'
     evalpath2      = '/scratch/usr/hbkoziel/corrected_input/'
-elif socket.gethostname()[:5] in ['albed','prod-']:
+elif socket.gethostname()[:5] in ['albed','prod-','fat-0']:
     #resultpath = '/albedo/work/projects/p_bio/model_output/A_riv'
-    resultpath = '/albedo/work/projects/MarESys/GCB2023/NEW1/A/'
+    #resultpath = '/albedo/work/projects/p_bio/model_output/RivPI-ClimANT_1850_1957'
+    #resultpath = '/albedo/work/projects/p_oceanpeak/Simone/FESOM2.7/1800_sp/'
+    #resultpath ='/albedo/work/user/silech001/'
+    resultpath = '/albedo/scratch/user/simuel001/phd/output_JRA/b_varClim_1958_2024/'
+    #resultpath = '/albedo/work/projects/MarESys/GCB2023/NEW1/A/'
     savepath = home+'/test_py_f2recom_submodules/py_f2recom/outputs/'+simu_name+'/'
     evalpath = '/albedo/work/projects/p_pool_recom/eval/'
     meshpath = '/albedo/work/projects/p_bio/mesh/core2/'
@@ -34,9 +38,9 @@ else:
 
 
 # period of analysis ------------------------------------------------------------------------------------
-first_year_maps = 2019
-first_year = 2019
-last_year  = 2021
+first_year_maps = 2020
+first_year = 2000
+last_year  = 2023
     
 years = np.arange(first_year,last_year+1,1)
 years_last10 = np.arange(first_year_maps,last_year+1,1)
