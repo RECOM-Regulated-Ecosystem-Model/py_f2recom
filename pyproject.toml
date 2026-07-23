@@ -6,9 +6,11 @@ build-backend = "setuptools.build_meta"
 name = "py_f2recom"
 version = "0.1.0"
 authors = [
+    {name = "Laurent Oziel", email = "laurent.oziel@awi.de"},
+    {name = "Tanvi Nagwekar", email = "tanvi.nagwekar@awi.de"},
     {name = "Paul Gierz", email = "paul.gierz@awi.de"},
 ]
-description = "Python tools for F2RECOM model analysis"
+description = "Python tools for RECOM model analysis"
 readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [
@@ -26,6 +28,19 @@ dependencies = [
     "jupyter",
     "pandas",
     "netCDF4",
+    "scipy",
+    "pathlib",
+    # Additional dependencies from bundled submodules (pyfesom2 and SkillMetrics)
+    "xlsxwriter",      # SkillMetrics
+    "ipython",         # pyfesom2
+    "joblib",          # pyfesom2
+    "numba",           # pyfesom2
+    "pyresample",      # pyfesom2
+    "seawater",        # pyfesom2
+    "shapely",         # pyfesom2
+    "pyproj",          # pyfesom2
+    "pymap3d",         # pyfesom2
+    "tqdm",            # pyfesom2
 ]
 
 [project.optional-dependencies]
@@ -39,7 +54,7 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["src", "modules/pyfesom2", "modules/SkillMetrics"]
 
 [project.scripts]
 py_f2recom = "py_f2recom.cli:main"

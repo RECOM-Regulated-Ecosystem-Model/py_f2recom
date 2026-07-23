@@ -5,3 +5,5 @@ def test_import():
     import py_f2recom
     assert py_f2recom is not None
     assert hasattr(py_f2recom, '__version__')
+
+test_import()

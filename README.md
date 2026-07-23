@@ -19,41 +19,26 @@ WARNING: If you are working on the previous FESOM1.4, this toolbox IS NOT for yo
 You can refer to the ancestor called **py_recom** working with the soon obsolete python2:  
 https://gitlab.dkrz.de/py_recom/py_recom
 
-**py_recom2** works like **py_fesom2**, but adds some custom dependencies which are included (i.e. improved version of pyfesom2, skillmetrics, cmocean). All you need is to copy the directory ('git clone --recurse-submodules https://github.com/RECOM-Regulated-Ecosystem-Model/py_f2recom.git'), adapt your own paths, and create a conda environment 'conda env create -f environment_py_f2recom.yml'.
- 
-**Note1**: Using Robinson projection needs more time than the standard Plate Carree projection (default).  
-**Note2**: in order to avoid memory issue and restart kernels, most functions do not output variables.  
-However, they could output the variables by assiggning an object (e.g., output = PHC3tempcomp()). 
-**Note3**: Use the MASTER script in the GlobalAssessment folder, to get a complete overview.
+**py_recom2** works on its own environment whcih contains all dependencies.
+For example, **pyfesom2** is included as a submodule.
 
-py_recom allows in some analysis the masking/comparison of oceans, for example:
+HOW-TO-INSTALL:
+```
+-> git clone --recurse-submodules https://github.com/RECOM-Regulated-Ecosystem-Model/py_f2recom.git
+-> conda create -n pyf2recom python=3.10 pip wheel
+-> conda activate pyf2recom
+-> cd py_f2recom/
+-> pip install -e .
+```
 
-    Available regions:
-            Ocean Basins:
-                "Atlantic_Basin"
-                "Pacific_Basin"
-                "Indian_Basin"
-                "Arctic_Basin"
-                "Southern_Ocean_Basin"
-                "Mediterranean_Basin"
-                "Global Ocean"
-                "Global Ocean 65N to 65S"
-                "Global Ocean 15S to 15N"
-            MOC Basins:
-                "Atlantic_MOC"
-                "IndoPacific_MOC"
-                "Pacific_MOC"
-                "Indian_MOC"
-            Nino Regions:
-                "Nino 3.4"
-                "Nino 3"
-                "Nino 4"
-            Arctic Ocean regions:
-                "Amerasian basin"
-                "Eurasian basin"
+OPTIONAL (EXPORT THE KERNEL TO JUPYTERHUB):
+```
+-> python -m ipykernel install --name pyf2recom --user
+```
 
-The user can refer to the 'get_mask' funstion in '/modules/pyseom2/ut.py'
+install demo video: https://asciinema.org/a/FsP6HiP3yEklfbWj
+
 
 (c) REcoM development team (MarESys Judith Hauck's group). No warranty. 
-Main developper : Laurent Oziel.
-Contact: laurent.oziel@awi.de
+Main developper : Laurent Oziel, Tanvi Nagwekar
+Contact: laurent.oziel@awi.de, tanvi.nagwekar@awi.fr, judith.hauck@awi.de
