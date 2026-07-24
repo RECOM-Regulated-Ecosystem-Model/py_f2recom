@@ -146,13 +146,17 @@ class plot_seasonalcycle_bio:
             NPPn = NPPn.groupby('time.month').mean().compute()
             NPPd = NPPd.groupby('time.month').mean().compute()
 
-            cocco_path = Path(self.resultpath + '/CoccoChl.fesom.'+str(first_year)+'.nc')
-            phaeo_path = Path(self.resultpath + '/PhaeoChl.fesom.'+str(first_year)+'.nc')
+            cocco_path = Path(self.resultpath + '/NPPc.fesom.'+str(first_year)+'.nc')
+            phaeo_path = Path(self.resultpath + '/NPPp.fesom.'+str(first_year)+'.nc')
+            diah_path = Path(self.resultpath + '/NPPdiaH.fesom.'+str(first_year)+'.nc')
             if phaeo_path.is_file():
                 NPPp = pf.get_data(resultpath, "NPPp", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
                 NPPp = NPPp.groupby('time.month').mean().compute()
             if cocco_path.is_file():
                 NPPc = pf.get_data(resultpath, "NPPc", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+                NPPc = NPPc.groupby('time.month').mean().compute()
+            if diah_path.is_file():
+                NPPc = pf.get_data(resultpath, "NPPdiaH", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
                 NPPc = NPPc.groupby('time.month').mean().compute()
             
             if 'month' in NPPd.dims:
@@ -162,6 +166,8 @@ class plot_seasonalcycle_bio:
                      datap = np.zeros((len(NPPp.month),len(regions)))*np.nan
                 if cocco_path.is_file():
                     datac = np.zeros((len(NPPc.month),len(regions)))*np.nan
+                if diah_path.is_file():
+                    datah = np.zeros((len(NPPdiah.month),len(regions)))*np.nan
                     
                 i = 0
                 for region,mask in regions: 
@@ -171,6 +177,8 @@ class plot_seasonalcycle_bio:
                         datap[:,i] = pf.areamean_data(NPPp, mesh, mask=mask)
                     if cocco_path.is_file():
                         datac[:,i] = pf.areamean_data(NPPc, mesh, mask=mask)
+                    if diah_path.is_file():
+                        datah[:,i] = pf.areamean_data(NPPdiah, mesh, mask=mask)
                     i = i+1
             else:
                 print('data is yearly, seasonal cycle calculation not possible')
@@ -183,12 +191,16 @@ class plot_seasonalcycle_bio:
 
             cocco_path = Path(self.resultpath + '/CoccoChl.fesom.'+str(first_year)+'.nc')
             phaeo_path = Path(self.resultpath + '/PhaeoChl.fesom.'+str(first_year)+'.nc')
+            diah_path = Path(self.resultpath + '/DiaHChl.fesom.'+str(first_year)+'.nc')
             if phaeo_path.is_file():
                 NPPp = pf.get_data(resultpath, "PhaeoChl", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
                 NPPp = NPPp.groupby('time.month').mean().compute()
             if cocco_path.is_file():
                 NPPc = pf.get_data(resultpath, "CoccoChl", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
                 NPPc = NPPc.groupby('time.month').mean().compute()
+            if diah_path.is_file():
+                NPPh = pf.get_data(resultpath, "DiaHChl", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+                NPPh = NPPc.groupby('time.month').mean().compute()
 
             if 'month' in NPPd.dims:
                 datad = np.zeros((len(NPPd.month),len(regions)))*np.nan
@@ -197,6 +209,8 @@ class plot_seasonalcycle_bio:
                      datap = np.zeros((len(NPPp.month),len(regions)))*np.nan
                 if cocco_path.is_file():
                     datac = np.zeros((len(NPPc.month),len(regions)))*np.nan
+                if diah_path.is_file():
+                    datah = np.zeros((len(NPPh.month),len(regions)))*np.nan
                     
                 i = 0
                 for region,mask in regions:
@@ -206,6 +220,8 @@ class plot_seasonalcycle_bio:
                         datap[:,i] = pf.areamean_data(NPPp[:,:,0], mesh, mask=mask)
                     if cocco_path.is_file():
                         datac[:,i] = pf.areamean_data(NPPc[:,:,0], mesh, mask=mask)
+                    if diah_path.is_file():
+                        datah[:,i] = pf.areamean_data(NPPh[:,:,0], mesh, mask=mask)
                     i = i+1
             else:
                 print('data is yearly, seasonal cycle calculation not possible')
@@ -229,6 +245,8 @@ class plot_seasonalcycle_bio:
             axes[0].plot(months_name, datac[:,0], label='Cocco',lw=3)
         if phaeo_path.is_file():
             axes[0].plot(months_name, datap[:,0], label='Phaeo',lw=3)
+        if diah_path.is_file():
+            axes[0].plot(months_name, datah[:,0], label='DiaH',lw=3)
 
         #axes[0].set_ylabel(ylabel)
         
@@ -247,6 +265,8 @@ class plot_seasonalcycle_bio:
             axes[1].plot(months_name, datac[:,1], label='Cocco',lw=3)
         if phaeo_path.is_file():
             axes[1].plot(months_name, datap[:,1], label='Phaeo',lw=3)
+        if diah_path.is_file():
+            axes[1].plot(months_name, datah[:,1], label='DiaH',lw=3)
 
         
         if self.type == 'Chl':
@@ -261,6 +281,8 @@ class plot_seasonalcycle_bio:
             axes[2].plot(months_name, datac[:,2], label='Cocco',lw=3)
         if phaeo_path.is_file():
             axes[2].plot(months_name, datap[:,2], label='Phaeo',lw=3)
+        if diaH_path.is_file():
+            axes[2].plot(months_name, datah[:,2], label='DiaH',lw=3)
 
         if self.type == 'Chl':
             axes[2].set_ylim(0,1.)
@@ -276,6 +298,8 @@ class plot_seasonalcycle_bio:
             axes[3].plot(months_name_SO, datac[:,3], label='Cocco',lw=3)
         if phaeo_path.is_file():
             axes[3].plot(months_name_SO, datap[:,3], label='Phaeo',lw=3)
+        if diah_path.is_file():
+            axes[3].plot(months_name_SO, datah[:,3], label='DiaH',lw=3)
 
         if self.type == 'Chl':
             axes[3].set_ylim(0,1.)
@@ -291,6 +315,8 @@ class plot_seasonalcycle_bio:
             axes[4].plot(months_name_SO, datac[:,4], label='Cocco',lw=3)
         if phaeo_path.is_file():
             axes[4].plot(months_name_SO, datap[:,4], label='Phaeo',lw=3)
+        if diah_path.is_file():
+            axes[4].plot(months_name_SO, datah[:,4], label='DiaH',lw=3)
 
         if self.type == 'Chl':
             axes[4].set_ylim(0,1.)
@@ -304,6 +330,8 @@ class plot_seasonalcycle_bio:
             axes[5].plot(months_name_SO, datac[:,5], label='Cocco',lw=3)
         if phaeo_path.is_file():
             axes[5].plot(months_name_SO, datap[:,5], label='Phaeo',lw=3)
+        if diah_path.is_file():
+            axes[5].plot(months_name_SO, datah[:,5], label='DiaH',lw=3)
 
         if self.type == 'Chl':
             axes[5].set_ylim(0,1.)
@@ -317,6 +345,11 @@ class plot_seasonalcycle_bio:
         axes[3].set_xticklabels(months_name, rotation=90, ha='right')
         axes[4].set_xticklabels(months_name, rotation=90, ha='right')
         axes[5].set_xticklabels(months_name, rotation=90, ha='right')
+
+        axes[1].set_yticklabels()
+        axes[2].set_yticklabels()
+        axes[4].set_yticklabels()
+        axes[5].set_yticklabels()
 
         labels=('SmallPhy','Diatoms','Coccos','Phaeo')
 

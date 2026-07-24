@@ -2453,6 +2453,12 @@ class plot_maps_npp_global:
                                    how="mean", compute=True, runid=self.runname, silent=True)
                 labelfesomPhaeo = 'FESOM Phaeo NPP {0}-{1}'.format(self.fyear,self.lyear)
                 print('4-phytoplankton model is used')
+
+                if phaeo_path.is_file():
+                    NPPhfesom = pf.get_data(self.resultpath, "NPPdiaH", years, mesh, 
+                                       how="mean", compute=True, runid=self.runname, silent=True)
+                    labelfesomDiaH = 'FESOM DiaH NPP {0}-{1}'.format(self.fyear,self.lyear)
+                    print('5-phytoplankton model is used')
                 
             else:
                 print('3-phytoplankton model is used')
@@ -2507,6 +2513,13 @@ class plot_maps_npp_global:
                 mesh = mesh,
                 lons = londic, 
                 lats = latdic)
+
+        if diah_path.is_file():
+            NPPh_interp = pf.fesom2regular(
+                data = NPPhfesom,
+                mesh = mesh,
+                lons = londic, 
+                lats = latdic)
         
         # Nanophyto + Diatoms (+ Coccos + Phaeo): TOTAL NPP -------------------------------------------------------------------------------------
         
@@ -2515,6 +2528,8 @@ class plot_maps_npp_global:
             NPPt_interp = NPPt_interp + NPPc_interp
         if phaeo_path.is_file():
             NPPt_interp = NPPt_interp + NPPp_interp
+        if diah_path.is_file():
+            NPPt_interp = NPPt_interp + NPPh_interp
         
 
 
@@ -2568,8 +2583,158 @@ class plot_maps_npp_global:
 
 
             # if phaeos and coccos are used ----------------------------------------------------------------------------------------
+            if cocco_path.is_file() and phaeo_path.is_file() not diah_path.is_file():
+
+                fig = plt.figure(figsize=(15,15), constrained_layout=False)
+                axes = fig.subplot_mosaic(
+                        """
+                        AB
+                        CD
+                        EF
+                        GG
+                        HH
+                        """,
+                        gridspec_kw={'hspace': 0.1, 'wspace': 0.1}, 
+                        subplot_kw=dict(projection=self.mapproj))             
+
+                # FESOM nanophyto
+                m1 = axes['A']
+                f1 = m1.pcolormesh(londic, latdic, NPPn_interp, 
+                                   transform = ccrs.PlateCarree(),
+                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
+                                   #vmin=1e-3,vmax=5e3)
+                mygrid(m1)
+                m1.set_extent(box, ccrs.PlateCarree())
+                m1.set_title('FESOM-REcoM small phytoplankton', fontsize=16)
+
+
+                # FESOM diatom
+                m2 = axes['B']
+                f2 = m2.pcolormesh(londic, latdic, NPPd_interp, 
+                                   transform = ccrs.PlateCarree(),
+                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
+                mygrid(m2)
+                m2.set_extent(box, ccrs.PlateCarree())
+                m2.set_title('FESOM-REcoM Diatom', fontsize=16)
+                
+                # FESOM coccolithophores
+                m3 = axes['C']
+                f3 = m3.pcolormesh(londic, latdic, NPPc_interp, 
+                                   transform = ccrs.PlateCarree(),
+                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
+                mygrid(m3)
+                m3.set_extent(box, ccrs.PlateCarree())
+                m3.set_title('FESOM-REcoM Coccolithophores', fontsize=16)
+                
+                # FESOM phaeocystis
+                m4 = axes['D']
+                f4 = m4.pcolormesh(londic, latdic, NPPp_interp, 
+                                   transform = ccrs.PlateCarree(),
+                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
+                mygrid(m4)
+                m4.set_extent(box, ccrs.PlateCarree())
+                m4.set_title('FESOM-REcoM Phaeocystis', fontsize=16)
+
+                # FESOM DiaH
+                m5 = axes['E']
+                f5 = m5.pcolormesh(londic, latdic, NPPh_interp, 
+                                   transform = ccrs.PlateCarree(),
+                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
+                mygrid(m5)
+                m5.set_extent(box, ccrs.PlateCarree())
+                m5.set_title('FESOM-REcoM highly silicified Diatioms', fontsize=16)
+
+                # FESOM
+                m6 = axes['F']
+                f6 = m6.pcolormesh(londic, latdic, NPPt_interp, 
+                                   transform = ccrs.PlateCarree(),
+                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
+                mygrid(m6)
+                m6.set_extent(box, ccrs.PlateCarree())
+                m6.set_title('FESOM-REcoM Total', fontsize=16)
+
+                # OC-CCI
+                m7 = axes['G']
+                f7 = m7.pcolormesh(londic, latdic, OCNPP_ma, 
+                                   transform = ccrs.PlateCarree(),
+                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
+                                   #vmin=1e-3,vmax=5e3)
+                mygrid(m7)
+                m7.set_extent(box, ccrs.PlateCarree())
+                m7.set_title(OCNPPlabel, fontsize=16)
+                
+
+                cbar1_ax = fig.add_axes([0.92, 0.44, 0.02, 0.4])
+
+                cbar1 = fig.colorbar(f1,
+                                cax = cbar1_ax, 
+                                orientation = 'vertical',
+                                ticks = ticks,
+                                fraction=0.1, pad=0.1,
+                                extend = 'max') 
+                cbar1.set_label(unitfesom, fontsize=14)
+                cbar1.ax.tick_params(labelsize=14)
+
+
+
+                # OC-CCI - FESOM
+                levels_diff = np.arange(-600,620,20)
+                m8 = axes['H']
+                f8 = m8.pcolormesh(londic, latdic, NPPt_interp - OCNPP_ma, 
+                                   transform = ccrs.PlateCarree(),
+                                   cmap = 'RdBu_r',
+                                   norm=colors.BoundaryNorm(boundaries=levels_diff, ncolors=256))
+                #f3.set_clim([-2, 2])
+
+                mygrid(m8)
+                m8.set_extent(box, ccrs.PlateCarree())
+                m8.set_title('FESOM-REcoM - '+matfileNPPsurf[-1-12:-9], fontsize=16)
+
+
+                 # add one colorbar for difference plot below figure
+
+                #fig.subplots_adjust(right=0.8)
+                cbar2_ax = fig.add_axes([0.92, 0.14, 0.02, 0.2])
+
+                cbar2 = fig.colorbar(f7,
+                                cax = cbar2_ax, 
+                                orientation = 'vertical',
+                                extend = 'both',
+                                #location ='bottom',
+                                ticks = [-600,-400,-200,0,200,400,600]) 
+                cbar2.ax.tick_params(labelsize=14)
+                cbar2.set_label(unitfesom, fontsize=16)
+
+                
+                m1.text(-0.12, 1.05, 'A', transform=m1.transAxes,
+                            size=30, weight='bold')
+                m2.text(-0.12, 1.05, 'B', transform=m2.transAxes,
+                            size=30, weight='bold')
+                m3.text(-0.12, 1.05, 'C', transform=m3.transAxes,
+                            size=30, weight='bold')
+                m4.text(-0.12, 1.05, 'D', transform=m4.transAxes,
+                            size=30, weight='bold')
+                m5.text(-0.12, 1.05, 'E', transform=m5.transAxes,
+                            size=30, weight='bold')
+                m6.text(-0.12, 1.05, 'F', transform=m6.transAxes,
+                            size=30, weight='bold')
+                m7.text(-0.12, 1.05, 'G', transform=m7.transAxes,
+                            size=30, weight='bold')
+                m8.text(-0.12, 1.05, 'H', transform=m8.transAxes,
+                            size=30, weight='bold')
+                
+
+                m1.set_extent(box, ccrs.PlateCarree())
+                m2.set_extent(box, ccrs.PlateCarree())
+                m3.set_extent(box, ccrs.PlateCarree())
+                m4.set_extent(box, ccrs.PlateCarree())
+                m5.set_extent(box, ccrs.PlateCarree())
+                m6.set_extent(box, ccrs.PlateCarree())
+                m7.set_extent(box, ccrs.PlateCarree())
+                m8.set_extent(box, ccrs.PlateCarree())
+
             
-            if cocco_path.is_file() & phaeo_path.is_file():
+            elif cocco_path.is_file() and phaeo_path.is_file() and not diah_path.is_file():
            
                 fig = plt.figure(figsize=(15,15), constrained_layout=False)
                 axes = fig.subplot_mosaic(
@@ -3068,15 +3233,24 @@ class plot_maps_npp_arctic:
         
         cocco_path = Path(self.resultpath + '/NPPc.fesom.'+str(years[0])+'.nc') # assuming that coccos were used for the entire simulation if they were used in the first year of simulation
         phaeo_path = Path(self.resultpath + '/NPPp.fesom.'+str(years[0])+'.nc') # assuming that phaeo was used for the entire simulation if they were used in the first year of simulation
+        diah_path = Path(self.resultpath + '/NPPdiaH.fesom.'+str(years[0])+'.nc')
         
         if cocco_path.is_file():
             NPPc = pf.get_data(self.resultpath, "NPPc", years, mesh, how="mean", compute=True, silent=True)
             
             if phaeo_path.is_file():
                 NPPp = pf.get_data(self.resultpath, "NPPp", years, mesh, how="mean", compute=True, silent=True)
-                
-                print('4-phytoplankton model is used')
-                NPP_MODEL = 365* (NPPd+NPPn+NPPc+NPPp)*12.01 /1e3
+
+                if phaeo_path.is_file():
+                    NPPh = pf.get_data(self.resultpath, "NPPp", years, mesh, how="mean", compute=True, silent=True)
+
+                    print('5-phytoplankton model is used')
+                    NPP_MODEL = 365* (NPPh+NPPd+NPPn+NPPc+NPPp)*12.01 /1e3
+
+                else:
+                    
+                    print('4-phytoplankton model is used')
+                    NPP_MODEL = 365* (NPPd+NPPn+NPPc+NPPp)*12.01 /1e3
             else: 
                 print('3-phytoplankton model is used')
                 NPP_MODEL = 365* (NPPd+NPPn+NPPc)*12.01 /1e3 
@@ -3856,6 +4030,17 @@ class plot_maps_all_pfts:
             PhaeoC_volsum   = pf.volsum_data(PhaeoC,mesh,uplow=[0, 6250])
             PhaeoC_volsum   = PhaeoC_volsum/1e18 # mg -> Pg
 
+        # DiaH
+        phaeo_path = Path(self.resultpath + '/DiaHC.fesom.'+str(years[0])+'.nc') 
+        if phaeo_path.is_file():
+            num_plots = num_plots + 1
+            DiaHC = pf.get_data(resultpath, 'DiaHC', years, mesh, runid=self.runname, how="mean", compute=True, silent=True)
+            DiaHC = DiaHC * 12.01
+            DiaHC_layersum = pf.layersum_data(DiaHC,mesh,uplow=[0, 6250])
+            DiaHC_layersum = DiaHC_layersum/1e3 # mg/m2 -> g/m2
+            DiaHC_volsum   = pf.volsum_data(DiaHC,mesh,uplow=[0, 6250])
+            DiaHC_volsum   = DiaHC_volsum/1e18 # mg -> Pg
+
         
         # Microzooplankton
         micro_path = Path(self.resultpath + '/Zoo3C.fesom.'+str(years[0])+'.nc') 
@@ -3892,9 +4077,10 @@ class plot_maps_all_pfts:
         # Plot ---------------------------------------------------------------------------------------------------------
         
         levels_diatoms            = np.arange(0,6,0.3)
+        levels_diah               = np.arange(0,6,0.3)
         levels_smallphytoplankton = np.arange(0,6,0.3)
         levels_coccolithophores   = np.arange(0,4,0.4)
-        levels_phaeocystis        = np.arange(0,6,0.3)
+        levels_phaeocystis        = np.arange(0,4,0.4)
         levels_microzooplankton   = np.arange(0,1,0.1)
         levels_mesozooplankton    = np.arange(0,0.5,0.05)
         levels_macrozooplankton   = np.arange(0,0.5,0.05)
@@ -4010,6 +4196,28 @@ class plot_maps_all_pfts:
             PhaeoC_volsum_text = str(round(PhaeoC_volsum[0],2))
             PhaeoC_text_all = r'$\Sigma$ '+PhaeoC_volsum_text+' Pg C'
             axes[num_axes].text(0.7,0.03,PhaeoC_text_all, transform=axes[num_axes].transAxes, color='white', fontsize=10, fontweight='bold')
+
+        # DiaH
+        if diah_path.is_file():
+            num_axes = num_axes + 1
+            f8 = pf.subplot(mesh, fig, axes[num_axes], [DiaHC_layersum[:]], levels = levels_diah,
+                            units = unit_phytoplankton, mapproj = mapproj, cmap = cmap, cmap_extension = cmap_extension, box = box)
+            axes[num_axes].set_title('Highly silicyfied Diatoms', fontsize=12)
+            
+            pos = axes[num_axes].get_position()
+            cbar8_ax = fig.add_axes([pos.x0, pos.y0-0.02, 0.35, 0.01])
+            cbar8 = fig.colorbar(f8,
+                            cax = cbar8_ax, 
+                            orientation = 'horizontal',
+                            extend = 'max',
+                            #ticks = [0,4,8,12,16,20,24,28,32,36]
+                                ) 
+            cbar8.ax.tick_params(labelsize=10)
+            cbar8.set_label(unit_phytoplankton, fontsize=10)
+            
+            DiaHC_volsum_text = str(round(DiaHC_volsum[0],2))
+            DiaHC_text_all = r'$\Sigma$ '+DiaHC_volsum_text+' Pg C'
+            axes[num_axes].text(0.7,0.03,DiaHC_text_all, transform=axes[num_axes].transAxes, color='white', fontsize=10, fontweight='bold')
          
                 
         # Microzooplankton
@@ -5452,6 +5660,7 @@ class plot_maps_chl_arctic:
         from pathlib import Path
         cocco_path = Path(self.resultpath + '/CoccoChl.fesom.'+str(years[0])+'.nc') # assuming that coccos were used for the entire simulation if they were used in the first year of simulation
         phaeo_path = Path(self.resultpath + '/PhaeoChl.fesom.'+str(years[0])+'.nc') # assuming that phaeo was used for the entire simulation if they were used in the first year of simulation
+        diah_path = Path(self.resultpath + '/DiaHChl.fesom.'+str(years[0])+'.nc') 
         
         
         if cocco_path.is_file():
@@ -5465,6 +5674,12 @@ class plot_maps_chl_arctic:
                                    how=None, compute=False, runid=self.runname, silent=True)
                 PhaeoChlfesom = PhaeoChlfesom.where(PhaeoChlfesom.time.dt.month.isin([5,6,7,8,9]), drop=True).resample(time='YS').mean(dim='time').compute()
                 Chlfesom = np.nanmean(PhyChlfesom[:,:,0] + DiaChlfesom[:,:,0] + CoccoChlfesom[:,:,0] + PhaeoChlfesom[:,:,0], axis =0) # select only surface
+                if diah_path.is_file():
+                print('5-phytoplankton model is used')
+                DiaHChlfesom = pf.get_data(self.resultpath, "DiaHChl", years, mesh, 
+                                   how=None, compute=False, runid=self.runname, silent=True)
+                DiaHChlfesom = DiaHChlfesom.where(DiaHChlfesom.time.dt.month.isin([5,6,7,8,9]), drop=True).resample(time='YS').mean(dim='time').compute()
+                Chlfesom = np.nanmean(DiaHChlfesom[:,:,0] + PhyChlfesom[:,:,0] + DiaChlfesom[:,:,0] + CoccoChlfesom[:,:,0] + PhaeoChlfesom[:,:,0], axis =0) # select only surface
             else:
                 print('3-phytoplankton model is used')
                 Chlfesom = np.nanmean(PhyChlfesom[:,:,0] + DiaChlfesom[:,:,0] + CoccoChlfesom[:,:,0], axis =0) # select only surface
@@ -5727,6 +5942,7 @@ class plot_maps_chl_global:
         
         cocco_path = Path(self.resultpath + '/CoccoChl.fesom.'+str(years[0])+'.nc') # assuming that coccos were used for the entire simulation if they were used in the first year of simulation
         phaeo_path = Path(self.resultpath + '/PhaeoChl.fesom.'+str(years[0])+'.nc') # assuming that phaeo was used for the entire simulation if they were used in the first year of simulation
+        diah_path = Path(self.resultpath + '/DiaHChl.fesom.'+str(years[0])+'.nc') 
         
         if cocco_path.is_file():
             
@@ -5749,6 +5965,17 @@ class plot_maps_chl_global:
                 PhaeoChlfesom_surf = PhaeoChlfesom[:,0]
                 
                 print('4-phytoplankton model is used')
+                
+                if diah_path.is_file():
+            
+                    DiaHChlfesom = pf.get_data(self.resultpath, "DiaHChl", years, mesh, 
+                                       how="mean", compute=True, runid=self.runname, silent=True)
+                    
+                    labelfesomDiaH = 'FESOM-REcoM DiaH Chl.a {0}-{1}'.format(self.fyear,self.lyear)
+                    
+                    DiaHChlfesom_surf = DiaHChlfesom[:,0]
+                    
+                    print('5-phytoplankton model is used')
 
             else:
             
@@ -5786,6 +6013,13 @@ class plot_maps_chl_global:
                 mesh = mesh,
                 lons = londic, 
                 lats = latdic)
+
+        if diah_path.is_file():
+            DiaHChlfesom_surf_interp = pf.fesom2regular(
+                data = DiaHChlfesom_surf,
+                mesh = mesh,
+                lons = londic, 
+                lats = latdic)
         
         # Nanophyto + Diatoms (+ Coccos / + Phaeos): TOTAL CHLOROPHYLL -------------------------------------------------------------------------------------
         PhyChlfesom_surf_interp_log10 = np.log10(PhyChlfesom_surf_interp)
@@ -5802,6 +6036,9 @@ class plot_maps_chl_global:
 
         if phaeo_path.is_file():
             Chl_total = Chl_total + PhaeoChlfesom_surf_interp
+
+        if diah_path.is_file():
+            Chl_total = Chl_total + DiaHChlfesom_surf_interp
             
         Chl_total_log10 = np.log10(Chl_total)
         
@@ -5859,8 +6096,7 @@ class plot_maps_chl_global:
 
 
             # if phaeos and coccos are used ----------------------------------------------------------------------------------------
-            if cocco_path.is_file() & phaeo_path.is_file():
-                
+            if cocco_path.is_file() and phaeo_path.is_file() and not diah_path.is_file() :
                 fig = plt.figure(figsize=(15,15), constrained_layout=False)
                 axes = fig.subplot_mosaic(
                         """
@@ -5893,6 +6129,7 @@ class plot_maps_chl_global:
                 
                 # FESOM coccolithophores
                 m3 = axes['C']
+                if cocco_path.is_file():
                 f3 = m3.pcolormesh(londic, latdic, CoccoChlfesom_surf_interp, 
                                    transform = ccrs.PlateCarree(),
                                    norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
@@ -5907,20 +6144,6 @@ class plot_maps_chl_global:
                 mygrid(m4)
                 m4.set_title('FESOM-REcoM Phaeo', fontsize=16)
                 
-                
-            
-                
-                # OC-CCI
-                m6 = axes['F']
-                f1 = m6.pcolormesh(londic, latdic, OCCCIchla_ma, 
-                                   transform = ccrs.PlateCarree(),
-                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
-                                   #vmin=1e-3,vmax=5e3)
-                mygrid(m6)
-                m6.set_title('OC-CCI', fontsize=16)
-
-
-
                 # FESOM
                 m5 = axes['E']
                 f5 = m5.pcolormesh(londic, latdic, Chl_total, 
@@ -5928,6 +6151,16 @@ class plot_maps_chl_global:
                                    norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
                 mygrid(m5)
                 m5.set_title('FESOM-REcoM Total', fontsize=16)
+            
+                
+                # OC-CCI
+                m6 = axes['G']
+                f6 = m6.pcolormesh(londic, latdic, OCCCIchla_ma, 
+                                   transform = ccrs.PlateCarree(),
+                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
+                                   #vmin=1e-3,vmax=5e3)
+                mygrid(m6)
+                m6.set_title('OC-CCI', fontsize=16)
 
                 cbar1_ax = fig.add_axes([0.92, 0.44, 0.02, 0.4])
 
@@ -5985,6 +6218,7 @@ class plot_maps_chl_global:
                             size=30, weight='bold')
                 m7.text(-0.12, 1.05, 'G', transform=m7.transAxes,
                             size=30, weight='bold')
+
                     
                 m1.set_extent(box, ccrs.PlateCarree())
                 m2.set_extent(box, ccrs.PlateCarree())
@@ -5993,9 +6227,154 @@ class plot_maps_chl_global:
                 m5.set_extent(box, ccrs.PlateCarree())
                 m6.set_extent(box, ccrs.PlateCarree())
                 m7.set_extent(box, ccrs.PlateCarree())
+
+                
+            elif cocco_path.is_file() and phaeo_path.is_file() and diah_path.is_file():
+                
+                fig = plt.figure(figsize=(15,15), constrained_layout=False)
+                axes = fig.subplot_mosaic(
+                        """
+                        AB
+                        CD
+                        EF
+                        GG
+                        HH
+                        """,
+                        gridspec_kw={'hspace': 0.1, 'wspace': 0.1}, 
+                        subplot_kw=dict(projection=self.mapproj))             
+
+                # FESOM nanophyto
+                m1 = axes['A']
+                f1 = m1.pcolormesh(londic, latdic, PhyChlfesom_surf_interp, 
+                                   transform = ccrs.PlateCarree(),
+                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
+                                   #vmin=1e-3,vmax=5e3)
+                mygrid(m1)
+                m1.set_title('FESOM-REcoM small phytoplankton', fontsize=16)
+
+
+                # FESOM diatom
+                m2 = axes['B']
+                f2 = m2.pcolormesh(londic, latdic, DiaChlfesom_surf_interp, 
+                                   transform = ccrs.PlateCarree(),
+                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
+                mygrid(m2)
+                m2.set_title('FESOM-REcoM Diatom', fontsize=16)
+
+                
+                # FESOM coccolithophores
+                m3 = axes['C']
+                if cocco_path.is_file():
+                f3 = m3.pcolormesh(londic, latdic, CoccoChlfesom_surf_interp, 
+                                   transform = ccrs.PlateCarree(),
+                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
+                mygrid(m3)
+                m3.set_title('FESOM-REcoM Coccos', fontsize=16)
+
+                # FESOM phaeocystis
+                m4 = axes['D']
+                f4 = m4.pcolormesh(londic, latdic, PhaeoChlfesom_surf_interp, 
+                                   transform = ccrs.PlateCarree(),
+                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
+                mygrid(m4)
+                m4.set_title('FESOM-REcoM Phaeo', fontsize=16)
+
+                # FESOM DiaH
+                m5 = axes['E']
+                f5 = m5.pcolormesh(londic, latdic, DiaHChlfesom_surf_interp, 
+                                   transform = ccrs.PlateCarree(),
+                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
+                mygrid(m5)
+                m5.set_title('FESOM-REcoM DiaH', fontsize=16)
+                
+                # FESOM
+                m6 = axes['F']
+                f6 = m6.pcolormesh(londic, latdic, Chl_total, 
+                                   transform = ccrs.PlateCarree(),
+                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
+                mygrid(m6)
+                m6.set_title('FESOM-REcoM Total', fontsize=16)
+            
+                
+                # OC-CCI
+                m7 = axes['G']
+                f7 = m7.pcolormesh(londic, latdic, OCCCIchla_ma, 
+                                   transform = ccrs.PlateCarree(),
+                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
+                                   #vmin=1e-3,vmax=5e3)
+                mygrid(m7)
+                m7.set_title('OC-CCI', fontsize=16)
+
+                cbar1_ax = fig.add_axes([0.92, 0.44, 0.02, 0.4])
+
+                cbar1 = fig.colorbar(f1,
+                                cax = cbar1_ax, 
+                                orientation = 'vertical',
+                                ticks = ticks,
+                                fraction=0.1, pad=0.1,
+                                extend = 'max') 
+                cbar1.set_label('Chl.a [mg m$^{-3}$]', fontsize=14)
+                cbar1.ax.tick_params(labelsize=14)
+
+
+
+                # OC-CCI - FESOM
+                levels_diff = np.arange(-2,2.125,0.125)
+                m8 = axes['H']
+                f8 = m7.pcolormesh(londic, latdic, Chl_total - OCCCIchla_ma, 
+                                   transform = ccrs.PlateCarree(),
+                                   cmap = 'RdBu_r',
+                                   norm=colors.BoundaryNorm(boundaries=levels_diff, ncolors=256),
+                                   #vmin=-3, vmax=3
+                                   )
+                #f3.set_clim([-2, 2])
+
+                mygrid(m8)
+                m8.set_title('FESOM-REcoM - OC-CCI', fontsize=16)
+
+                # add one colorbar for difference plot below figure
+
+                #fig.subplots_adjust(right=0.8)
+                cbar2_ax = fig.add_axes([0.92, 0.14, 0.02, 0.2])
+
+                cbar2 = fig.colorbar(f7,
+                                cax = cbar2_ax, 
+                                orientation = 'vertical',
+                                #location ='bottom',
+                                extend = 'both',
+                                ticks = [-3,-2,-1,0,1,2,3],
+                                ) 
+                cbar2.ax.tick_params(labelsize=14)
+                cbar2.set_label('Chl.a [mg m$^{-3}$]', fontsize=16)
+
+                m1.text(-0.12, 1.05, 'A', transform=m1.transAxes,
+                            size=30, weight='bold')
+                m2.text(-0.12, 1.05, 'B', transform=m2.transAxes,
+                            size=30, weight='bold')
+                m3.text(-0.12, 1.05, 'C', transform=m3.transAxes,
+                            size=30, weight='bold')
+                m4.text(-0.12, 1.05, 'D', transform=m4.transAxes,
+                            size=30, weight='bold')
+                m5.text(-0.12, 1.05, 'E', transform=m5.transAxes,
+                            size=30, weight='bold')
+                m6.text(-0.12, 1.05, 'F', transform=m6.transAxes,
+                            size=30, weight='bold')
+                m7.text(-0.12, 1.05, 'G', transform=m7.transAxes,
+                            size=30, weight='bold')
+                m8.text(-0.12, 1.05, 'H', transform=m8.transAxes,
+                            size=30, weight='bold')
+                    
+                m1.set_extent(box, ccrs.PlateCarree())
+                m2.set_extent(box, ccrs.PlateCarree())
+                m3.set_extent(box, ccrs.PlateCarree())
+                m4.set_extent(box, ccrs.PlateCarree())
+                m5.set_extent(box, ccrs.PlateCarree())
+                m6.set_extent(box, ccrs.PlateCarree())
+                m7.set_extent(box, ccrs.PlateCarree())
+                m8.set_extent(box, ccrs.PlateCarree())
             
             # if coccos are used ----------------------------------------------------------------------------------------
-            elif cocco_path.is_file() and not phaeo_path.is_file():
+            elif cocco_path.is_file() and not phaeo_path.is_file() and not diah_path.is_file():
                 
                 fig = plt.figure(figsize=(15,15), constrained_layout=False)
                 axes = fig.subplot_mosaic(
@@ -6404,6 +6783,7 @@ class plot_maps_chl_southern:
         from pathlib import Path
         cocco_path = Path(self.resultpath + '/CoccoChl.fesom.'+str(years[0])+'.nc') # assuming that coccos were used for the entire simulation if they were used in the first year of simulation
         phaeo_path = Path(self.resultpath + '/PhaeoChl.fesom.'+str(years[0])+'.nc') # assuming that phaeo was used for the entire simulation if they were used in the first year of simulation
+        diah_path = Path(self.resultpath + '/DiaHChl.fesom.'+str(years[0])+'.nc')
         
         if cocco_path.is_file():
             
@@ -6426,6 +6806,17 @@ class plot_maps_chl_southern:
                 PhaeoChlfesom_surf = PhaeoChlfesom[:,0]
                 
                 print('4-phytoplankton model is used')
+                
+                if diah_path.is_file():
+            
+                DiaHChlfesom = pf.get_data(self.resultpath, "DiaHChl", years, mesh, 
+                                   how="mean", compute=True, runid=self.runname, silent=True)
+                
+                labelfesomPhaeo = 'FESOM-REcoM DiaH Chl.a {0}-{1}'.format(self.fyear,self.lyear)
+                
+                DiaHChlfesom_surf = DiaHChlfesom[:,0]
+                
+                print('5-phytoplankton model is used')
 
             else:
             
@@ -6461,6 +6852,13 @@ class plot_maps_chl_southern:
                 mesh = mesh,
                 lons = londic, 
                 lats = latdic)
+
+        if diah_path.is_file():
+            DiaHChlfesom_surf_interp = pf.fesom2regular(
+                data = DiaHChlfesom_surf,
+                mesh = mesh,
+                lons = londic, 
+                lats = latdic)
         
          
         # Nanophyto + Diatoms (+ Coccos): TOTAL CHLOROPHYLL -------------------------------------------------------------------------------------
@@ -6470,12 +6868,16 @@ class plot_maps_chl_southern:
             CoccoChlfesom_surf_interp_log10 = np.log10(CoccoChlfesom_surf_interp)
         if phaeo_path.is_file():
             PhaeoChlfesom_surf_interp_log10 = np.log10(PhaeoChlfesom_surf_interp)
+        if diah_path.is_file():
+            DiaHChlfesom_surf_interp_log10 = np.log10(DiaHChlfesom_surf_interp)
         
         Chl_total = ChlAfesom_surf_interp + DiaChlfesom_surf_interp
         if cocco_path.is_file():
             Chl_total = Chl_total + CoccoChlfesom_surf_interp
         if phaeo_path.is_file():
             Chl_total = Chl_total + PhaeoChlfesom_surf_interp
+        if diah_path.is_file():
+            Chl_total = Chl_total + DiaHChlfesom_surf_interp
         Chl_total_log10 = np.log10(Chl_total)
         
         # cut to Southern Ocean -------------------------------------------------------------------------------------
