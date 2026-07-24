@@ -2583,7 +2583,7 @@ class plot_maps_npp_global:
 
 
             # if phaeos and coccos are used ----------------------------------------------------------------------------------------
-            if cocco_path.is_file() and phaeo_path.is_file() not diah_path.is_file():
+            if cocco_path.is_file() and phaeo_path.is_file() and not diah_path.is_file():
 
                 fig = plt.figure(figsize=(15,15), constrained_layout=False)
                 axes = fig.subplot_mosaic(
@@ -5675,11 +5675,11 @@ class plot_maps_chl_arctic:
                 PhaeoChlfesom = PhaeoChlfesom.where(PhaeoChlfesom.time.dt.month.isin([5,6,7,8,9]), drop=True).resample(time='YS').mean(dim='time').compute()
                 Chlfesom = np.nanmean(PhyChlfesom[:,:,0] + DiaChlfesom[:,:,0] + CoccoChlfesom[:,:,0] + PhaeoChlfesom[:,:,0], axis =0) # select only surface
                 if diah_path.is_file():
-                print('5-phytoplankton model is used')
-                DiaHChlfesom = pf.get_data(self.resultpath, "DiaHChl", years, mesh, 
+                    print('5-phytoplankton model is used')
+                    DiaHChlfesom = pf.get_data(self.resultpath, "DiaHChl", years, mesh, 
                                    how=None, compute=False, runid=self.runname, silent=True)
-                DiaHChlfesom = DiaHChlfesom.where(DiaHChlfesom.time.dt.month.isin([5,6,7,8,9]), drop=True).resample(time='YS').mean(dim='time').compute()
-                Chlfesom = np.nanmean(DiaHChlfesom[:,:,0] + PhyChlfesom[:,:,0] + DiaChlfesom[:,:,0] + CoccoChlfesom[:,:,0] + PhaeoChlfesom[:,:,0], axis =0) # select only surface
+                    DiaHChlfesom = DiaHChlfesom.where(DiaHChlfesom.time.dt.month.isin([5,6,7,8,9]), drop=True).resample(time='YS').mean(dim='time').compute()
+                    Chlfesom = np.nanmean(DiaHChlfesom[:,:,0] + PhyChlfesom[:,:,0] + DiaChlfesom[:,:,0] + CoccoChlfesom[:,:,0] + PhaeoChlfesom[:,:,0], axis =0) # select only surface
             else:
                 print('3-phytoplankton model is used')
                 Chlfesom = np.nanmean(PhyChlfesom[:,:,0] + DiaChlfesom[:,:,0] + CoccoChlfesom[:,:,0], axis =0) # select only surface
@@ -6129,7 +6129,6 @@ class plot_maps_chl_global:
                 
                 # FESOM coccolithophores
                 m3 = axes['C']
-                if cocco_path.is_file():
                 f3 = m3.pcolormesh(londic, latdic, CoccoChlfesom_surf_interp, 
                                    transform = ccrs.PlateCarree(),
                                    norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
@@ -6264,7 +6263,6 @@ class plot_maps_chl_global:
                 
                 # FESOM coccolithophores
                 m3 = axes['C']
-                if cocco_path.is_file():
                 f3 = m3.pcolormesh(londic, latdic, CoccoChlfesom_surf_interp, 
                                    transform = ccrs.PlateCarree(),
                                    norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
@@ -6809,14 +6807,14 @@ class plot_maps_chl_southern:
                 
                 if diah_path.is_file():
             
-                DiaHChlfesom = pf.get_data(self.resultpath, "DiaHChl", years, mesh, 
-                                   how="mean", compute=True, runid=self.runname, silent=True)
-                
-                labelfesomPhaeo = 'FESOM-REcoM DiaH Chl.a {0}-{1}'.format(self.fyear,self.lyear)
-                
-                DiaHChlfesom_surf = DiaHChlfesom[:,0]
-                
-                print('5-phytoplankton model is used')
+                    DiaHChlfesom = pf.get_data(self.resultpath, "DiaHChl", years, mesh, 
+                                       how="mean", compute=True, runid=self.runname, silent=True)
+                    
+                    labelfesomPhaeo = 'FESOM-REcoM DiaH Chl.a {0}-{1}'.format(self.fyear,self.lyear)
+                    
+                    DiaHChlfesom_surf = DiaHChlfesom[:,0]
+                    
+                    print('5-phytoplankton model is used')
 
             else:
             
