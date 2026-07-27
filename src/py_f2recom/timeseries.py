@@ -281,7 +281,7 @@ class plot_seasonalcycle_bio:
             axes[2].plot(months_name, datac[:,2], label='Cocco',lw=3)
         if phaeo_path.is_file():
             axes[2].plot(months_name, datap[:,2], label='Phaeo',lw=3)
-        if diaH_path.is_file():
+        if diah_path.is_file():
             axes[2].plot(months_name, datah[:,2], label='DiaH',lw=3)
 
         if self.type == 'Chl':
@@ -346,10 +346,10 @@ class plot_seasonalcycle_bio:
         axes[4].set_xticklabels(months_name, rotation=90, ha='right')
         axes[5].set_xticklabels(months_name, rotation=90, ha='right')
 
-        axes[1].set_yticklabels()
-        axes[2].set_yticklabels()
-        axes[4].set_yticklabels()
-        axes[5].set_yticklabels()
+        axes[1].set_yticklabels([])
+        axes[2].set_yticklabels([])
+        axes[4].set_yticklabels([])
+        axes[5].set_yticklabels([])
 
         labels=('SmallPhy','Diatoms','Coccos','Phaeo')
 
@@ -369,7 +369,12 @@ class plot_timeseries_npp:
     self.SiEtotal [Tmol Si/yr]
     
     '''
-    def __init__(self,resultpath,savepath,mesh,first_year,last_year,
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 first_year=first_year,
+                 last_year=last_year,
                  mapproj='pc',
                  plotting = True,
                  savefig=False,
@@ -404,7 +409,7 @@ class plot_timeseries_npp:
         # check if coccos, second det, and variable sinking velocity are used or not -------------------------------------------------------------------------------
         cocco_path  = Path(self.resultpath + '/NPPc.fesom.'+str(years[0])+'.nc') # assuming that coccos were used for the entire simulation if they were used in the first year of simulation
         phaeo_path  = Path(self.resultpath + '/NPPp.fesom.'+str(years[0])+'.nc') # assuming that phaeo was used for the entire simulation if they were used in the first year of simulation
-        
+        diah_path  = Path(self.resultpath + '/NPPDiaH.fesom.'+str(years[0])+'.nc')
         secdet_path = Path(self.resultpath + '/idetz2c.fesom.'+str(years[0])+'.nc')
         cram_path   = Path(self.resultpath + '/wsink_det1.fesom.'+str(years[0])+'.nc')
         
@@ -417,7 +422,10 @@ class plot_timeseries_npp:
             print('Coccolithophores are used')
         if phaeo_path.is_file():
             NPPp = pf.get_data(resultpath, "NPPp", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
-            print('Phaeocystis is used')
+            print('Phaeocystis are used')
+        if diah_path.is_file():
+            NPPh = pf.get_data(resultpath, "NPPDiaH", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+            print('Highly silicified Diatoms are used')
         DetC1 = pf.get_data(resultpath, "DetC", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
         SiE1 = pf.get_data(resultpath, "DetSi", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
         DetCalc1 = pf.get_data(resultpath, "DetCalc", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
@@ -435,6 +443,8 @@ class plot_timeseries_npp:
             NPPc = NPPc.resample(time='YS').mean(dim='time').compute()
         if phaeo_path.is_file():
             NPPp = NPPp.resample(time='YS').mean(dim='time').compute()
+        if diah_path.is_file():
+            NPPh = NPPh.resample(time='YS').mean(dim='time').compute()
         SiE1 = SiE1.resample(time='YS').mean(dim='time').compute() 
         DetCalc1 = DetCalc1.resample(time='YS').mean(dim='time').compute()
         DetC1 = DetC1.resample(time='YS').mean(dim='time').compute()
@@ -456,11 +466,15 @@ class plot_timeseries_npp:
             NPP    = 365* (NPPd+NPPn+NPPc+NPPp)*12.01 /1e18 # Conversion from [mg/m2/day]   => [mg/m2/yr] => [Pg C/year]
             NPPc   = 365* (NPPc)*12.01 /1e18
             NPPp   = 365* (NPPp)*12.01 /1e18
+
+        elif cocco_path.is_file() & phaeo_path.is_file() & diah_path.is_file():
+            NPP    = 365* (NPPd+NPPn+NPPc+NPPp+NPPh)*12.01 /1e18 # Conversion from [mg/m2/day]   => [mg/m2/yr] => [Pg C/year]
+            NPPc   = 365* (NPPc)*12.01 /1e18
+            NPPp   = 365* (NPPp)*12.01 /1e18
         
-        elif cocco_path.is_file() and not phaeo_path.is_file():
+        elif cocco_path.is_file() and not phaeo_path.is_file() and not diah_path.is_file():
             NPP    = 365* (NPPd+NPPn+NPPc)*12.01 /1e18 # Conversion from [mg/m2/day]   => [mg/m2/yr] => [Pg C/year]
             NPPc   = 365* (NPPc)*12.01 /1e18
-        
         
         else:
             NPP    = 365* (NPPd+NPPn)*12.01 /1e18 # Conversion from [mg/m2/day]   => [mg/m2/yr] => [Pg C/year]
@@ -470,17 +484,23 @@ class plot_timeseries_npp:
         NPP_timeseries = pf.areasum_data(NPP,mesh,mask)
         NPPd_timeseries = pf.areasum_data(NPPd,mesh,mask)
         NPPn_timeseries = pf.areasum_data(NPPn,mesh,mask)
+        
         if cocco_path.is_file():
             NPPc_timeseries = pf.areasum_data(NPPc,mesh,mask)
 
         if phaeo_path.is_file():
             NPPp_timeseries = pf.areasum_data(NPPp,mesh,mask)
+
+        if diah_path.is_file():
+            NPPh_timeseries = pf.areasum_data(NPPh,mesh,mask)
         
         del NPP, NPPd, NPPn
         if cocco_path.is_file():
             del NPPc
         if phaeo_path.is_file():
             del NPPp
+        if diah_path.is_file():
+            del NPPh
             
         secperyear = 31536000 # = 86400 sec/day * 365 days; necessary to compute yearly fluxes with sinking velocity in m/s
         
@@ -498,8 +518,8 @@ class plot_timeseries_npp:
                 Vdet2 = 200. ## sinking velocity
                         
         if cram_path.is_file():
-            print('shape DetC1: ',np.shape(DetC1))
-            print('shape Vdet1: ',np.shape(Vdet1))
+            # print('shape DetC1: ',np.shape(DetC1))
+            # print('shape Vdet1: ',np.shape(Vdet1))
             detc1 = secperyear  * np.squeeze(DetC1[:,:,i_ep_depth]) * 12.01 * np.squeeze(-Vdet1[:,:,i_ep_depth]) /1e18 # [mmol/m3] => [mg/m2/yr] => [Pg C/yr]; wsink_det1 is a negative number
             if secdet_path.is_file():
                 detc2 = secperyear  * np.squeeze(DetC2[:,:,i_ep_depth]) * 12.01 * np.squeeze(-Vdet2[:,:,i_ep_depth]) /1e18 # [mmol/m3] => [mg/m2/yr] => [Pg C/yr]; wsink_det2 is a negative number
@@ -510,8 +530,8 @@ class plot_timeseries_npp:
         
         detct = detc1
         if secdet_path.is_file():
-            print('shape detct: ',np.shape(detct))
-            print('shape detct2: ',np.shape(detct))
+            # print('shape detct: ',np.shape(detct))
+            # print('shape detct2: ',np.shape(detct))
             detct = detct + detc2
         
         EP_timeseries = pf.areasum_data(detct,mesh,mask)
@@ -577,70 +597,89 @@ class plot_timeseries_npp:
         print('NPP mean = ',np.nanmean(NPP_timeseries))
         print('NPPd mean = ',np.nanmean(NPPd_timeseries))
         print('NPPn mean = ',np.nanmean(NPPn_timeseries))
+        
+        num_plots = 7
         if cocco_path.is_file():
             print('NPPc mean = ',np.nanmean(NPPc_timeseries))
+            num_plots = num_plots + 1
         if phaeo_path.is_file():
             print('NPPp mean = ',np.nanmean(NPPp_timeseries))
+            num_plots = num_plots + 1
+        if diah_path.is_file():
+            print('NPPh mean = ',np.nanmean(NPPh_timeseries))
+            num_plots = num_plots + 1
         print('EP mean = ',np.nanmean(EP_timeseries))
         print('SiE mean = ',np.nanmean(SiE_timeseries))
         print('CalcE mean = ',np.nanmean(DetCalc_timeseries))
         
         if plotting:
             # plotting total NPP -------------------------------------------------------------------------------        
-            fig = plt.figure(figsize=(12,9), facecolor='w', edgecolor='k', tight_layout = True)
-            
-            plt.subplot(3, 3, 1)
-            plt.plot(years,NPP_timeseries,'.-',color='C0',label='Total')
-            plt.title('Total NPP')
-            plt.ylabel(r'[Pg C yr$^{-1}$]')
+            # Automatically calculate rows (max 2 columns)
+            num_plots = 7
+            cols = 3
+            rows = (num_plots + cols - 1) // cols
 
-            plt.subplot(3, 3, 2)
-            plt.plot(years,NPPn_timeseries,'.-g',label='Sphy',color='C1')
-            plt.title('small phytoplankton NPP')
-
-            plt.subplot(3, 3, 3)
-            plt.plot(years,NPPd_timeseries,'.-r',label='Dia',color='C2')
-            plt.title('diatom NPP')
+            fig, axes = plt.subplots(rows, cols, figsize=(15, rows * 4),
+                             gridspec_kw={'hspace': 0.4, 'wspace': 0.1},
+                            facecolor='w', edgecolor='k', tight_layout = True)
+            axes = axes.flatten()
             
+            axes[0].plot(years,NPP_timeseries,'.-',color='C0',label='Total')
+            axes[0].set_title('Total NPP')
+            axes[0].set_ylabel(r'[Pg C yr$^{-1}$]')
+
+            axes[1].plot(years,NPPn_timeseries,'.-g',label='Sphy',color='C1')
+            axes[1].set_title('small phytoplankton NPP')
+
+            axes[2].plot(years,NPPd_timeseries,'.-r',label='Dia',color='C2')
+            axes[2].set_title('diatom NPP')
+
+            num_axes = 2
             if cocco_path.is_file():
-                plt.subplot(3, 3, 4)
-                plt.plot(years,NPPc_timeseries,'.-r',label='Cocco',color='C3')
-                plt.title('coccolithophore NPP')
+                num_axes = num_axes + 1
+                axes[num_axes].plot(years,NPPc_timeseries,'.-r',label='Cocco',color='C3')
+                axes[num_axes].set_title('coccolithophore NPP')
             if phaeo_path.is_file():
-                plt.subplot(3, 3, 5)
-                plt.plot(years,NPPp_timeseries,'.-r',label='Phaeo',color='C4')
-                plt.title('phaeocystis NPP')
+                num_axes = num_axes + 1
+                axes[num_axes].plot(years,NPPp_timeseries,'.-r',label='Phaeo',color='C4')
+                axes[num_axes].set_title('phaeocystis NPP')
+            if diah_path.is_file():
+                num_axes = num_axes + 1
+                axes[num_axes].plot(years,NPPp_timeseries,'.-r',label='Phaeo',color='C4')
+                axes[num_axes].set_title('phaeocystis NPP')
 
             # all NPP together
-            plt.subplot(3, 3, 6)
-            plt.plot(years,NPP_timeseries,'.-',label='Total',color='C0')
-            plt.plot(years,NPPn_timeseries,'.-',label='Sphy',color='C1')
-            plt.plot(years,NPPd_timeseries,'.-',label='Dia',color='C2')
+            num_axes = num_axes + 1
+            axes[num_axes].plot(years,NPP_timeseries,'.-',label='Total',color='C0')
+            axes[num_axes].plot(years,NPPn_timeseries,'.-',label='Sphy',color='C1')
+            axes[num_axes].plot(years,NPPd_timeseries,'.-',label='Dia',color='C2')
             if cocco_path.is_file():
-                plt.plot(years,NPPc_timeseries,'.-',label='Cocco',color='C3')
+                axes[num_axes].plot(years,NPPc_timeseries,'.-',label='Cocco',color='C3')
             if phaeo_path.is_file():
-                plt.plot(years,NPPp_timeseries,'.-',label='Phaeo',color='C4')
-            plt.title('NPP')
-            plt.ylabel(r'[Pg C yr$^{-1}$]')
-            plt.legend(loc='best')
+                axes[num_axes].plot(years,NPPp_timeseries,'.-',label='Phaeo',color='C4')
+            if diah_path.is_file():
+                axes[num_axes].plot(years,NPPh_timeseries,'.-',label='DiaH',color='C5')
+            axes[num_axes].set_title('NPP')
+            axes[num_axes].set_ylabel(r'[Pg C yr$^{-1}$]')
+            axes[num_axes].legend(loc='best')
 
             # Export production
-            plt.subplot(3, 3, 7)
-            plt.plot(years,EP_timeseries,'.-',color='C3')
-            plt.title('EP at 100 m')
-            plt.ylabel(r'[Pg C yr$^{-1}$]')
+            num_axes = num_axes + 1
+            axes[num_axes].plot(years,EP_timeseries,'.-',color='C3')
+            axes[num_axes].set_title('EP at 100 m')
+            axes[num_axes].set_ylabel(r'[Pg C yr$^{-1}$]')
 
             # Si export
-            plt.subplot(3, 3, 8)
-            plt.plot(years,SiE_timeseries,'.-',color='C4')
-            plt.title('Si export at 100 m')
-            plt.ylabel(r'[Tmol Si yr$^{-1}$]')
+            num_axes = num_axes + 1
+            axes[num_axes].plot(years,SiE_timeseries,'.-',color='C4')
+            axes[num_axes].set_title('Si export at 100 m')
+            axes[num_axes].set_ylabel(r'[Tmol Si yr$^{-1}$]')
             
             # CaCO3 export
-            plt.subplot(3, 3, 9)
-            plt.plot(years,DetCalc_timeseries,'.-',color='C5')
-            plt.title('CaCO3 export at 100 m')
-            plt.ylabel(r'[Pg C yr$^{-1}$]')
+            num_axes = num_axes + 1
+            axes[num_axes].plot(years,DetCalc_timeseries,'.-',color='C5')
+            axes[num_axes].set_title('CaCO3 export at 100 m')
+            axes[num_axes].set_ylabel(r'[Pg C yr$^{-1}$]')
             
 
 

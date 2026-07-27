@@ -1247,6 +1247,7 @@ class plot_maps_phc_temp_regulargrid:
                  mesh,
                  resultpath=resultpath,
                  savepath=savepath,
+                 meshpath=meshpath,
                  ncfile=ncfilePHC3,
                  first_year=first_year,
                  last_year=last_year,
@@ -1263,6 +1264,7 @@ class plot_maps_phc_temp_regulargrid:
         self.resultpath = resultpath
         self.savepath = savepath
         self.mesh = mesh
+        self.meshpath = meshpath
         self.ncfile = ncfile
         self.fyear = first_year
         self.lyear = last_year
@@ -1294,7 +1296,7 @@ class plot_maps_phc_temp_regulargrid:
                                how="mean", compute=True, runid=self.runname, silent=True)
 
         # load FESOM mesh diag -------------------------------------------------------------------------------
-        meshdiag= self.resultpath+'/'+self.runname+'.mesh.diag.nc'
+        meshdiag= self.meshpath+'/'+self.runname+'.mesh.diag.nc'
         #!ncdump -h $meshdiag
 
         diag = pf.get_meshdiag(mesh,meshdiag=meshdiag, runid=self.runname)             
@@ -1438,6 +1440,7 @@ class plot_maps_phc_sal_regulargrid:
                  ncfile=ncfilePHC3,
                  first_year=first_year,
                  last_year=last_year,
+                 meshpath=meshpath,
                  mapproj='pc',
                  cmap = 'viridis',
                  savefig=False,
@@ -1449,6 +1452,7 @@ class plot_maps_phc_sal_regulargrid:
         self.runname = runname
         self.resultpath = resultpath
         self.savepath = savepath
+        self.meshpath = meshpath
         self.mesh = mesh
         self.ncfile = ncfile
         self.fyear = first_year
@@ -1480,7 +1484,7 @@ class plot_maps_phc_sal_regulargrid:
                                how="mean", compute=True, runid=self.runname, silent=True)
 
         # load FESOM mesh diag -------------------------------------------------------------------------------
-        meshdiag= self.resultpath+'/'+self.runname+'.mesh.diag.nc'
+        meshdiag= self.meshpath+'/'+self.runname+'.mesh.diag.nc'
         #!ncdump -h $meshdiag
 
         diag = pf.get_meshdiag(mesh,meshdiag=meshdiag, runid=self.runname)             
@@ -1756,18 +1760,19 @@ class plot_maps_pco2:
                             cmap = self.cmap,
                             cmap_extension='both',
                             titles=labelfesom,
-                            box=box,
+                            box=box, interp = 'linear',
                            )
-                    
+
+            print(np.shape(SOCAT_mean))
             m2 = axes['B']
-            f2 = pf.subplot(mesh, fig, m2, [SOCAT_mean], 
+            f2 = pf.subplot(mesh, fig, m2, SOCAT_mean, 
                             levels = levels,
                             units=unitsocat, 
                             mapproj=self.mapproj, # robinson projection takes more time!
                             cmap = self.cmap,
-                           cmap_extension='both',
+                            cmap_extension='both',
                             titles=labelsocat,
-                            box=box,
+                            box=box, interp = 'linear',
                            )
                     
             cbar1_ax = fig.add_axes([0.13, 0.53, 0.76, 0.02])
@@ -1789,7 +1794,7 @@ class plot_maps_pco2:
                             cmap = 'RdBu_r',
                             cmap_extension='both',
                             titles=label_diff,
-                            box=box,
+                            box=box, interp = 'linear',
                            )
             
             m1.text(-0.12, 1.05, 'A', transform=m1.transAxes,
@@ -2441,6 +2446,7 @@ class plot_maps_npp_global:
         from pathlib import Path
         cocco_path = Path(self.resultpath + '/NPPc.fesom.'+str(years[0])+'.nc') # assuming that coccos were used for the entire simulation if they were used in the first year of simulation
         phaeo_path = Path(self.resultpath + '/NPPp.fesom.'+str(years[0])+'.nc') # assuming that phaeo was used for the entire simulation if they were used in the first year of simulation
+        diah_path = Path(self.resultpath + '/NPPDiaH.fesom.'+str(years[0])+'.nc')
         
         
         if cocco_path.is_file():
@@ -2454,7 +2460,7 @@ class plot_maps_npp_global:
                 labelfesomPhaeo = 'FESOM Phaeo NPP {0}-{1}'.format(self.fyear,self.lyear)
                 print('4-phytoplankton model is used')
 
-                if phaeo_path.is_file():
+                if diah_path.is_file():
                     NPPhfesom = pf.get_data(self.resultpath, "NPPdiaH", years, mesh, 
                                        how="mean", compute=True, runid=self.runname, silent=True)
                     labelfesomDiaH = 'FESOM DiaH NPP {0}-{1}'.format(self.fyear,self.lyear)
@@ -2583,16 +2589,15 @@ class plot_maps_npp_global:
 
 
             # if phaeos and coccos are used ----------------------------------------------------------------------------------------
-            if cocco_path.is_file() and phaeo_path.is_file() and not diah_path.is_file():
-
+            if cocco_path.is_file() and phaeo_path.is_file() and diah_path.is_file():
+                #print('5-phytoplankton model is printed')
                 fig = plt.figure(figsize=(15,15), constrained_layout=False)
                 axes = fig.subplot_mosaic(
                         """
-                        AB
-                        CD
-                        EF
-                        GG
-                        HH
+                        ABC
+                        CDE
+                        FFF
+                        HHH
                         """,
                         gridspec_kw={'hspace': 0.1, 'wspace': 0.1}, 
                         subplot_kw=dict(projection=self.mapproj))             
@@ -2735,7 +2740,7 @@ class plot_maps_npp_global:
 
             
             elif cocco_path.is_file() and phaeo_path.is_file() and not diah_path.is_file():
-           
+                #print('4-phytoplankton model is printed')
                 fig = plt.figure(figsize=(15,15), constrained_layout=False)
                 axes = fig.subplot_mosaic(
                         """
@@ -2784,7 +2789,15 @@ class plot_maps_npp_global:
                 mygrid(m4)
                 m4.set_extent(box, ccrs.PlateCarree())
                 m4.set_title('FESOM-REcoM Phaeocystis', fontsize=16)
-                
+
+                # FESOM
+                m5 = axes['E']
+                f5 = m5.pcolormesh(londic, latdic, NPPt_interp, 
+                                   transform = ccrs.PlateCarree(),
+                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
+                mygrid(m5)
+                m5.set_extent(box, ccrs.PlateCarree())
+                m5.set_title('FESOM-REcoM Total', fontsize=16)
 
                 # OC-CCI
                 m6 = axes['F']
@@ -2795,17 +2808,6 @@ class plot_maps_npp_global:
                 mygrid(m6)
                 m6.set_extent(box, ccrs.PlateCarree())
                 m6.set_title(OCNPPlabel, fontsize=16)
-                
-
-
-                # FESOM
-                m5 = axes['E']
-                f5 = m5.pcolormesh(londic, latdic, NPPt_interp, 
-                                   transform = ccrs.PlateCarree(),
-                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
-                mygrid(m5)
-                m5.set_extent(box, ccrs.PlateCarree())
-                m5.set_title('FESOM-REcoM Total', fontsize=16)
 
                 cbar1_ax = fig.add_axes([0.92, 0.44, 0.02, 0.4])
 
@@ -2875,7 +2877,8 @@ class plot_maps_npp_global:
             
             # if coccos are used ---------------------------------------------------------------------------------------------   
             
-            elif cocco_path.is_file() and not phaeo_path.is_file():    
+            elif cocco_path.is_file() and not phaeo_path.is_file() and not diah_path.is_file():
+                #print('3-phytoplankton model is printed')
                 fig = plt.figure(figsize=(15,15), constrained_layout=False)
                 axes = fig.subplot_mosaic(
                         """
@@ -2914,9 +2917,20 @@ class plot_maps_npp_global:
                 mygrid(m3)
                 m3.set_extent(box, ccrs.PlateCarree())
                 m3.set_title('FESOM-REcoM Coccolithophores', fontsize=16)
+
+                # FESOM
+                m4 = axes['D']
+                f4 = m4.pcolormesh(londic, latdic, NPPt_interp, 
+                                   transform = ccrs.PlateCarree(),
+                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
+                mygrid(m4)
+                m4.set_extent(box, ccrs.PlateCarree())
+                m4.set_title('FESOM-REcoM Total', fontsize=16)
                 
                 
-                
+                # Placeholder
+                m7 = axes['E']
+                axes['E'].remove()
 
                 # OC-CCI
                 m5 = axes['F']
@@ -2927,19 +2941,8 @@ class plot_maps_npp_global:
                 mygrid(m5)
                 m5.set_extent(box, ccrs.PlateCarree())
                 m5.set_title(OCNPPlabel, fontsize=16)
-                
-                # Placeholder
-                m7 = axes['E']
-                axes['E'].remove()
 
-                # FESOM
-                m4 = axes['D']
-                f4 = m4.pcolormesh(londic, latdic, NPPt_interp, 
-                                   transform = ccrs.PlateCarree(),
-                                   norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))
-                mygrid(m4)
-                m4.set_extent(box, ccrs.PlateCarree())
-                m4.set_title('FESOM-REcoM Total', fontsize=16)
+                
 
                 cbar1_ax = fig.add_axes([0.92, 0.44, 0.02, 0.4])
 
@@ -3009,6 +3012,7 @@ class plot_maps_npp_global:
             # if coccos are not used ------------------------------------------------------------------------------------    
             
             else:
+                #print('2-phytoplankton model is printed')
                 fig = plt.figure(figsize=(15,15), constrained_layout=False)
                 axes = fig.subplot_mosaic(
                         """
@@ -3667,9 +3671,9 @@ class plot_maps_mld:
 #             self.NPPt_interp = NPPt_interp
 #             self.unit = unitfesom
 #             self.NPPt_OC = OCNPP_ma
-
+  
 def plot_maps_maredat_depths(model, figlabel, savelabel, lon_maredat, lat_maredat, 
-                      mapproj, years, savefig=False, savepath=''):
+                      mapproj, first_year, last_year, savefig=False, savepath=''):
     '''
     Plot log10 FESOM layered means
     
@@ -3958,7 +3962,8 @@ class plot_maps_all_pfts:
                  savepath=savepath,
                  first_year=first_year,
                  last_year=last_year,
-                 mapproj='pc',cmap='viridis',
+                 mapproj='pc',
+                 cmap='viridis',
                  cmap_extension='max',
                  savefig=False,
                  output=False,
@@ -4031,8 +4036,8 @@ class plot_maps_all_pfts:
             PhaeoC_volsum   = PhaeoC_volsum/1e18 # mg -> Pg
 
         # DiaH
-        phaeo_path = Path(self.resultpath + '/DiaHC.fesom.'+str(years[0])+'.nc') 
-        if phaeo_path.is_file():
+        diah_path = Path(self.resultpath + '/DiaHC.fesom.'+str(years[0])+'.nc') 
+        if diah_path.is_file():
             num_plots = num_plots + 1
             DiaHC = pf.get_data(resultpath, 'DiaHC', years, mesh, runid=self.runname, how="mean", compute=True, silent=True)
             DiaHC = DiaHC * 12.01
@@ -6153,7 +6158,7 @@ class plot_maps_chl_global:
             
                 
                 # OC-CCI
-                m6 = axes['G']
+                m6 = axes['F']
                 f6 = m6.pcolormesh(londic, latdic, OCCCIchla_ma, 
                                    transform = ccrs.PlateCarree(),
                                    norm=colors.BoundaryNorm(boundaries=levels, ncolors=256))

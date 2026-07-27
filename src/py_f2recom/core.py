@@ -294,10 +294,10 @@ def plot_taylor(ref,pred,FT,savefig):
     title_3 = FT+': 25-100 m'
     title_4 = FT+': 100m to bottom'
     
-    fig_1, sdev_1, crmsd_1, ccoef_1 = plt_Taylor_norm(ref[0],pred[0],mask=True,title=title_1)
-    fig_2, sdev_2, crmsd_2, ccoef_2 = plt_Taylor_norm(ref[1],pred[1],mask=True,title=title_2)
-    fig_3, sdev_3, crmsd_3, ccoef_3 = plt_Taylor_norm(ref[2],pred[2],mask=True,title=title_3)
-    fig_4, sdev_4, crmsd_4, ccoef_4 = plt_Taylor_norm(ref[3],pred[3],mask=True,title=title_4)
+    fig_1, sdev_1, crmsd_1, ccoef_1 = plot_taylor_norm(ref[0],pred[0],mask=True,title=title_1)
+    fig_2, sdev_2, crmsd_2, ccoef_2 = plot_taylor_norm(ref[1],pred[1],mask=True,title=title_2)
+    fig_3, sdev_3, crmsd_3, ccoef_3 = plot_taylor_norm(ref[2],pred[2],mask=True,title=title_3)
+    fig_4, sdev_4, crmsd_4, ccoef_4 = plot_taylor_norm(ref[3],pred[3],mask=True,title=title_4)
     
     if(savefig == True):
         fig_1.savefig(savepath+'Taylor_0-5m,'+FT+'_'+str(years[0])+'to'+str(years[-1])+'.png', 
@@ -310,4 +310,27 @@ def plot_taylor(ref,pred,FT,savefig):
                         dpi = 300, bbox_inches='tight')
     
     return fig_1, sdev_1, crmsd_1, ccoef_1, fig_2, sdev_2, crmsd_2, ccoef_2, fig_3, sdev_3, crmsd_3, ccoef_3, fig_4, sdev_4, crmsd_4, ccoef_4
+
+def mask_model_with_maredat(fesom_data,maredat_data):
+    '''
+    Mask model data where no MarEDAT available, then fill masked_array for better processing
+    
+    Input:
+    model: FESOM data array with 4 data layers, i.e. fesom_layered_sum as output of fesom_to_maredat_levels()
+    maredat_layered_sum: maredat data as array[4] layered into 0-5, 5-25, 25-100, 100m-bottom
+    
+    '''
+    
+    import pyfesom2 as pf
+    import numpy as np
+    import matplotlib.pylab as plt
+    import cartopy.crs as ccrs
+    
+    model_ma = fesom_data
+    model_ma[0] = np.where(maredat_data[0]==0, np.nan, model_ma[0])
+    model_ma[1] = np.where(maredat_data[1]==0, np.nan, model_ma[1])
+    model_ma[2] = np.where(maredat_data[2]==0, np.nan, model_ma[2])
+    model_ma[3] = np.where(maredat_data[3]==0, np.nan, model_ma[3])
+    
+    return model_ma
 

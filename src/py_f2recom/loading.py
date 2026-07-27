@@ -4,6 +4,9 @@ loading tools for FESOM2-REcoM2 model output.
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
+from .loading import *
+from .datasets import *
+from .core import *
 
 def load_mat(filename):
     """
@@ -154,7 +157,14 @@ def load_maredat(ncfileMaredat):
     return lat_maredat, lon_maredat, maredat_layered_sum, maredat_layered_mean
 
 
-def fesom_to_maredat_levels(resultpath, runid, years, mesh, lon_maredat, lat_maredat, FT):
+def fesom_to_maredat_levels(mesh,
+                            FT,
+                            lon_maredat, lat_maredat,
+                            resultpath=resultpath,
+                            meshpath=meshpath,
+                            first_year=first_year,
+                            last_year=last_year,
+                            runid='fesom'):
     '''
     Process FESOM data analogue to Maredat layers 0-5, 5-25, 25-100, 100-bottom
     as means and sums
@@ -179,11 +189,17 @@ def fesom_to_maredat_levels(resultpath, runid, years, mesh, lon_maredat, lat_mar
     import matplotlib.pylab as plt
     import cartopy.crs as ccrs
     
+    years=np.arange(int(first_year), int(last_year)+1)
     # get interpolation input -> data of all levels
     # annual mean of fesom data already caluclated when reading model results
     #print('\nProcessing {0} for years {1}-{2}'.format(resultpath,years[0],years[-1]))
-    
-    biomass_fesom = pf.get_data(resultpath, FT, years, mesh, runid=runid, how="mean")
+
+    if FT == 'DiaHC':
+        biomass_fesom1 = pf.get_data(resultpath, FT, years, mesh, runid=runid, how="mean") 
+        biomass_fesom2 = pf.get_data(resultpath, 'DiaC', years, mesh, runid=runid, how="mean")
+        biomass_fesom = biomass_fesom1 + biomass_fesom2
+    else:
+        biomass_fesom = pf.get_data(resultpath, FT, years, mesh, runid=runid, how="mean")
     biomass_fesom = biomass_fesom * 12.01
     #print('DiaC_fesom shape: ',np.shape(biomass_fesom))
     # shape DiaC_fesom: 126858, 47
@@ -192,10 +208,14 @@ def fesom_to_maredat_levels(resultpath, runid, years, mesh, lon_maredat, lat_mar
     lons, lats = np.meshgrid(lon_maredat, lat_maredat)
 
     # load FESOM mesh diag 
-    meshdiag=resultpath+'/'+runid+'.mesh.diag.nc'
+    meshdiag=meshpath+'/'+runid+'.mesh.diag.nc'
     #!ncdump -h $meshdiag
     diag = pf.get_meshdiag(mesh,meshdiag=meshdiag,runid=runid)
-    mesh_depths = -diag['nz'].values
+
+    if 'nz' in diag.data_vars:
+        mesh_depths = -diag['nz'].values
+    elif 'zbar' in diag.data_vars:
+        mesh_depths = -diag['zbar'].values
 
     # because initially, depths are negative in fesom2, but we want the depth difference positive
     #print('mesh_depths: ',mesh_depths)

@@ -11,16 +11,27 @@ import math
 import skill_metrics as sm
 from scipy.interpolate import griddata
 from pathlib import Path
+from .loading import *
+from .datasets import *
+from .core import *
 
-class plot_bars_maredat_sina:
+class plot_maredat:
     '''
     class Bio_Maredat_comp(runname,resultpath,savepath,meshpath,ncfileMaredat,FT,first_year,last_year,
                  mapproj='pc',savefig=False, verbose=False, output=False, 
                             plotting=True, Taylor=True)
     '''
     
-    def __init__(self,resultpath,savepath,mesh,meshpath,ncfileMaredat,FT,first_year,last_year,
-                 mapproj='pc',runid='fesom',
+    def __init__(self,
+                 mesh,
+                 resultpath=resultpath,
+                 savepath=savepath,
+                 meshpath=meshpath,
+                 ncfileMaredat=ncfileMaredatDia,
+                 FT='DiaC',
+                 first_year=first_year,
+                 last_year=last_year,
+                 runid='fesom',
                  savefig=False,output=False,plotting=True,verbose=False,Taylor=True):
 
         self.runid = runid
@@ -30,7 +41,6 @@ class plot_bars_maredat_sina:
         self.meshpath = meshpath
         self.fyear = first_year
         self.lyear = last_year
-        self.mapproj = mapproj
         self.savefig = savefig
         self.ncfileMaredat = ncfileMaredat
         self.FT = FT
@@ -41,17 +51,6 @@ class plot_bars_maredat_sina:
         
         import warnings
         warnings.filterwarnings('ignore')
-        
-        if self.mapproj == 'rob':
-            box=[-180, 180, -90, 90]
-        elif self.mapproj == 'pc':
-            box=[-180, 180, -90, 90]
-        elif self.mapproj == 'sp':
-            box=[-180, 180, -90, -30]
-        elif self.mapproj == 'np':
-            box=[-180, 180, 60, 90]
-            
-        self.mapproj = pf.get_proj(self.mapproj)
 
         if(self.verbose):
             print('Processing {0}'.format(self.resultpath))
@@ -59,25 +58,7 @@ class plot_bars_maredat_sina:
             
 # load Maredat -------------------------------------------------------------------------------
     # for Phaeocystis Maredat: Extract Arctic and Antarctic Data
-        if ncfileMaredat == '/albedo/home/simuel001/master_thesis/py_f2recom_4phy/eval_maredat_phaeo/PANGAEA/MarEDat20120424Phaeocystis.nc':
-            
-
-            ncfileMaredat = xr.open_dataset(self.ncfileMaredat, decode_times=False)
-            
-            mask = ((ncfileMaredat.LATITUDE < 45) & (ncfileMaredat.LATITUDE > -45))
-
-            filtered_data = ncfileMaredat.where(~mask, drop=False)
-
-            # saving maredat data with extracted latitude data:
-            
-            path = '/albedo/home/simuel001/master_thesis/py_f2recom_4phy/eval_maredat_phaeo/PANGAEA/MarEDat20120424Phaeocystis_filtered.nc'
-            filtered_data.to_netcdf(path=path)
-
-            # continue with extracted data: 
-            lat_maredat, lon_maredat, maredat_layered_sum, maredat_layered_mean = load_maredat(path)
-
-        else:
-            lat_maredat, lon_maredat, maredat_layered_sum, maredat_layered_mean = load_maredat(self.ncfileMaredat)
+        lat_maredat, lon_maredat, maredat_layered_sum, maredat_layered_mean = load_maredat(self.ncfileMaredat)
 
             
             
@@ -89,17 +70,25 @@ class plot_bars_maredat_sina:
             
             
 # load FESOM mesh diag -------------------------------------------------------------------------------
-        meshdiag=resultpath+'/'+runid+'.mesh.diag.nc'
+        meshdiag=self.meshpath+'/'+runid+'.mesh.diag.nc'
         #!ncdump -h $meshdiag
         diag = pf.get_meshdiag(mesh,meshdiag=meshdiag,runid=runid)
-        mesh_depths = diag['nz'].values
+        if 'zbar' in diag.data_vars:
+            mesh_depths = diag['zbar'].values
+        elif 'nz' in diag.data_vars:
+            mesh_depths = diag['nz'].values
 
         if self.verbose:
             check_plot_mesh(mesh, plot_globe = False)
                         
             
 # load FESOM Diatom C data -------------------------------------------------------------------------------------
-        fesom_layered_sum, fesom_layered_mean = fesom_to_maredat_levels(self.resultpath, self.runid, years, mesh, lon_maredat, lat_maredat, self.FT)
+        fesom_layered_sum, fesom_layered_mean = fesom_to_maredat_levels(mesh,
+                                                                        self.FT,
+                                                                        lon_maredat, lat_maredat,
+                                                                        self.resultpath,
+                                                                        self.meshpath,
+                                                                        first_year = first_year)
     
             
 # mask FESOM data for gridpoints without Maredat data ----------------------------------------------------------
@@ -108,11 +97,11 @@ class plot_bars_maredat_sina:
                    
             
 # Taylor statistics ---------------------------------------------------------------------------------       
-        fig_1, sdev_1, crmsd_1, ccoef_1, fig_2, sdev_2, crmsd_2, ccoef_3, fig_3, sdev_3, crmsd_3, ccoef_3, fig_4, sdev_4, crmsd_4, ccoef_4 = plot_Taylor(maredat_layered_sum,fesom_layered_sum_masked,self.FT,self.savefig)
+        fig_1, sdev_1, crmsd_1, ccoef_1, fig_2, sdev_2, crmsd_2, ccoef_3, fig_3, sdev_3, crmsd_3, ccoef_3, fig_4, sdev_4, crmsd_4, ccoef_4 = plot_taylor(maredat_layered_sum,fesom_layered_sum_masked,self.FT,self.savefig)
         
 
 # Barplots ----------------------------------------------------------------------------------------  
-        barplots(fesom_layered_sum_masked, maredat_layered_sum, lon_maredat, lat_maredat, self.FT, self.savefig)
+        plot_bars_maredat(fesom_layered_sum_masked, maredat_layered_sum, lon_maredat, lat_maredat, self.FT, self.savefig)
     
     
 # plot Maredat and (unfiltered) FESOM next to each other ---------------------------------------------------
