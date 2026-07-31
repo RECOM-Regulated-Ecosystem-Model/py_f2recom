@@ -27,7 +27,7 @@ elif socket.gethostname()[:5] in ['albed','prod-','fat-0']:
     #resultpath = '/albedo/work/projects/p_bio/model_output/RivPI-ClimANT_1850_1957'
     #resultpath = '/albedo/work/projects/p_oceanpeak/Simone/FESOM2.7/1800_sp/'
     #resultpath ='/albedo/work/user/silech001/'
-    resultpath = '/albedo/scratch/user/simuel001/phd/output_JRA/b_varClim_1958_2024/'
+    resultpath = '/albedo/scratch/user/simuel001/phd/output_JRA/a_varClim_1958_2024'
     #resultpath = '/albedo/work/projects/MarESys/GCB2023/NEW1/A/'
     savepath = home+'/test_py_f2recom_submodules/py_f2recom/outputs/'+simu_name+'/'
     evalpath = '/albedo/work/projects/p_pool_recom/eval/'
