@@ -141,23 +141,23 @@ class plot_seasonalcycle_bio:
 
         # load FESOM data ---------------------------------------------------------------------------------------
         if type == 'NPP':
-            NPPd = pf.get_data(resultpath, "NPPd", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
-            NPPn = pf.get_data(resultpath, "NPPn", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+            NPPd = pf.get_data(resultpath, "NPPd", self.years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+            NPPn = pf.get_data(resultpath, "NPPn", self.years, mesh, how=None, compute=False, runid=self.runname, silent=True)
             NPPn = NPPn.groupby('time.month').mean().compute()
             NPPd = NPPd.groupby('time.month').mean().compute()
 
-            cocco_path = Path(self.resultpath + '/NPPc.fesom.'+str(first_year)+'.nc')
-            phaeo_path = Path(self.resultpath + '/NPPp.fesom.'+str(first_year)+'.nc')
-            diah_path = Path(self.resultpath + '/NPPdiaH.fesom.'+str(first_year)+'.nc')
+            cocco_path = Path(self.resultpath + '/NPPc.fesom.'+str(self.fyear)+'.nc')
+            phaeo_path = Path(self.resultpath + '/NPPp.fesom.'+str(self.fyear)+'.nc')
+            diah_path = Path(self.resultpath + '/NPPdiaH.fesom.'+str(self.fyear)+'.nc')
             if phaeo_path.is_file():
-                NPPp = pf.get_data(resultpath, "NPPp", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+                NPPp = pf.get_data(resultpath, "NPPp", self.years, mesh, how=None, compute=False, runid=self.runname, silent=True)
                 NPPp = NPPp.groupby('time.month').mean().compute()
             if cocco_path.is_file():
-                NPPc = pf.get_data(resultpath, "NPPc", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+                NPPc = pf.get_data(resultpath, "NPPc", self.years, mesh, how=None, compute=False, runid=self.runname, silent=True)
                 NPPc = NPPc.groupby('time.month').mean().compute()
             if diah_path.is_file():
-                NPPc = pf.get_data(resultpath, "NPPdiaH", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
-                NPPc = NPPc.groupby('time.month').mean().compute()
+                NPPdiah = pf.get_data(resultpath, "NPPdiaH", self.years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+                NPPdiah = NPPdiah.groupby('time.month').mean().compute()
             
             if 'month' in NPPd.dims:
                 datad = np.zeros((len(NPPd.month),len(regions)))*np.nan
@@ -184,23 +184,23 @@ class plot_seasonalcycle_bio:
                 print('data is yearly, seasonal cycle calculation not possible')
                 
         elif type == 'Chl':
-            NPPn = pf.get_data(resultpath, "PhyChl", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
-            NPPd = pf.get_data(resultpath, "DiaChl", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+            NPPn = pf.get_data(resultpath, "PhyChl", self.years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+            NPPd = pf.get_data(resultpath, "DiaChl", self.years, mesh, how=None, compute=False, runid=self.runname, silent=True)
             NPPn = NPPn.groupby('time.month').mean().compute()
             NPPd = NPPd.groupby('time.month').mean().compute()
 
-            cocco_path = Path(self.resultpath + '/CoccoChl.fesom.'+str(first_year)+'.nc')
-            phaeo_path = Path(self.resultpath + '/PhaeoChl.fesom.'+str(first_year)+'.nc')
-            diah_path = Path(self.resultpath + '/DiaHChl.fesom.'+str(first_year)+'.nc')
+            cocco_path = Path(self.resultpath + '/CoccoChl.fesom.'+str(self.fyear)+'.nc')
+            phaeo_path = Path(self.resultpath + '/PhaeoChl.fesom.'+str(self.fyear)+'.nc')
+            diah_path = Path(self.resultpath + '/DiaHChl.fesom.'+str(self.fyear)+'.nc')
             if phaeo_path.is_file():
-                NPPp = pf.get_data(resultpath, "PhaeoChl", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+                NPPp = pf.get_data(resultpath, "PhaeoChl", self.years, mesh, how=None, compute=False, runid=self.runname, silent=True)
                 NPPp = NPPp.groupby('time.month').mean().compute()
             if cocco_path.is_file():
-                NPPc = pf.get_data(resultpath, "CoccoChl", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+                NPPc = pf.get_data(resultpath, "CoccoChl", self.years, mesh, how=None, compute=False, runid=self.runname, silent=True)
                 NPPc = NPPc.groupby('time.month').mean().compute()
             if diah_path.is_file():
-                NPPh = pf.get_data(resultpath, "DiaHChl", years, mesh, how=None, compute=False, runid=self.runname, silent=True)
-                NPPh = NPPc.groupby('time.month').mean().compute()
+                NPPh = pf.get_data(resultpath, "DiaHChl", self.years, mesh, how=None, compute=False, runid=self.runname, silent=True)
+                NPPh = NPPh.groupby('time.month').mean().compute()
 
             if 'month' in NPPd.dims:
                 datad = np.zeros((len(NPPd.month),len(regions)))*np.nan
