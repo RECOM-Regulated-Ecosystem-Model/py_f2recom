@@ -3462,10 +3462,18 @@ class plot_maps_mld:
         # load FESOM mesh -------------------------------------------------------------------------------------
         #mesh       = pf.load_mesh(self.meshpath)
         years = np.arange(self.fyear, self.lyear+1,1)      
-        
-        MLDfesom = pf.get_data(self.resultpath, "MLD2", years, mesh, 
+
+        from pathlib import Path
+        mld3_path = Path(self.resultpath + '/MLD3.fesom.'+str(years[0])+'.nc')
+
+        if mld3_path.is_file():
+            MLDfesom = pf.get_data(self.resultpath, "MLD3", years, mesh, 
                                how=None, compute=False, runid=self.runname, silent=True)
-        #MLD = MLD.resample(time='MS').mean(dim='time').compute()
+        else:
+            MLDfesom = pf.get_data(self.resultpath, "MLD2", years, mesh, 
+                               how=None, compute=False, runid=self.runname, silent=True)
+            print('MLD3 (0.03 kg/m3) is not there, MLD2 is picked but the density criterion (0.125 kg/m3) is not consistent with observations')
+
         MLDfesom = -MLDfesom.groupby('time.month').mean('time')
         
         MLDfesom_marc = np.array(MLDfesom[2,:])
