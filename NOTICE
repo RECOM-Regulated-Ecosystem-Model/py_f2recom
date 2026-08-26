@@ -1,0 +1,11 @@
+py_f2recom includes or uses the following third-party software:
+
+pyfesom2
+Copyright (c) 2019, FESOM team
+Licensed under the MIT License.
+See modules/pyfesom2/LICENSE.
+
+SkillMetrics
+Copyright and licensing information as provided by the SkillMetrics project.
+Licensed under the GNU General Public License, version 3.
+See modules/SkillMetrics/LICENSE.txt.
